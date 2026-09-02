@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0F7A9422E8C3E6550364AB1F /* ScoreboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A169995D2DF6CAA7863D7 /* ScoreboardView.swift */; };
 		0FAADD404EE1723251ED0A35 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05A63D2B83C75EE0CDBF73F /* ThemeManager.swift */; };
+		21B64FF9EAE9CD28CAD11BD0 /* MainMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */; };
 		329B8BE56BA0C7236E26BE56 /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACAF882BDBF001E05E5F515 /* GameViewModel.swift */; };
 		3CE8BF7CF34490A574FD43A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F688E3A9030F9E0ACEB5575 /* Assets.xcassets */; };
 		3E3B4082C41A80B9BF817657 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C26EE02C7C0D007449C768 /* RootView.swift */; };
@@ -27,6 +28,7 @@
 		1BB0F2EE5BDBA3CD3BBE363B /* RulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesView.swift; sourceTree = "<group>"; };
 		3F688E3A9030F9E0ACEB5575 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		415A169995D2DF6CAA7863D7 /* ScoreboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreboardView.swift; sourceTree = "<group>"; };
+		50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuView.swift; sourceTree = "<group>"; };
 		6102D66887AA0AAB87C31B63 /* GameModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModels.swift; sourceTree = "<group>"; };
 		776A18A9CC41775D3B11B81F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7865542F6E35611A004EC0BD /* Brand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Brand.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				04C8410C1543A4025EE8798E /* MainGameView.swift */,
+				50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */,
 				91C26EE02C7C0D007449C768 /* RootView.swift */,
 				1BB0F2EE5BDBA3CD3BBE363B /* RulesView.swift */,
 				415A169995D2DF6CAA7863D7 /* ScoreboardView.swift */,
@@ -183,6 +186,7 @@
 				329B8BE56BA0C7236E26BE56 /* GameViewModel.swift in Sources */,
 				6E3B9EB88A36BC29810CAB52 /* Localizer.swift in Sources */,
 				B7143F11498F71C4AF8F0650 /* MainGameView.swift in Sources */,
+				21B64FF9EAE9CD28CAD11BD0 /* MainMenuView.swift in Sources */,
 				3E3B4082C41A80B9BF817657 /* RootView.swift in Sources */,
 				9BC7201048A9309E57E3E617 /* RulesView.swift in Sources */,
 				0F7A9422E8C3E6550364AB1F /* ScoreboardView.swift in Sources */,

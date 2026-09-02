@@ -12,7 +12,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private let gkRadius: CGFloat = 34
     private let ballRadius: CGFloat = 20
     private let maxDrag: CGFloat = 220
-    private let maxImpulse: CGFloat = 46
+    private let maxImpulse: CGFloat = 130
 
     weak var viewModel: GameViewModel?
 
@@ -157,7 +157,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let body = SKPhysicsBody(circleOfRadius: radius)
         body.mass = isGK ? 0.15 : 0.275
-        body.linearDamping = 2.3
+        body.linearDamping = 0.55
         body.restitution = 0.65
         body.friction = 0.2
         body.allowsRotation = false
@@ -181,7 +181,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let body = SKPhysicsBody(circleOfRadius: ballRadius)
         body.mass = 0.06
-        body.linearDamping = 1.6
+        body.linearDamping = 0.4
         body.restitution = 0.78
         body.friction = 0.05
         body.allowsRotation = false

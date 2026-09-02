@@ -12,6 +12,8 @@ struct MainGameView: View {
     }()
     @State private var showRules = false
 
+    var onExit: () -> Void
+
     var body: some View {
         VStack(spacing: 14) {
             topBar
@@ -36,17 +38,11 @@ struct MainGameView: View {
 
     private var topBar: some View {
         HStack {
-            HStack(spacing: 8) {
-                ZStack {
-                    Circle().fill(LinearGradient(colors: [Brand.orange, Brand.amber], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 30, height: 30)
-                    Text("⚽").font(.system(size: 15))
-                }
-                Text(localizer.t(.appTitle))
-                    .font(.headline)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+            Button(action: onExit) {
+                Image(systemName: "chevron.left")
             }
+            .buttonStyle(ChipButtonStyle())
+
             Spacer(minLength: 8)
             Button(localizer.language.displayCode) { localizer.toggle() }
                 .buttonStyle(ChipButtonStyle())

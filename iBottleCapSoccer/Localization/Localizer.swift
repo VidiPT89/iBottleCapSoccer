@@ -66,6 +66,10 @@ final class Localizer: ObservableObject {
             .rulesPlaysTitle: "Jogadas especiais",
             .rulesPlaysBody: "Penáltis, livres diretos, cantos, laterais e pontapé de baliza — tal como no futebol tradicional.",
             .close: "Fechar",
+            .menuSubtitle: "O clássico jogo de caricas, direto do recreio",
+            .menuPlay: "Jogar",
+            .menuRules: "Regras",
+            .menuBackToMenu: "Menu",
         ],
         .en: [
             .appTitle: "Bottle Cap Soccer",
@@ -99,6 +103,10 @@ final class Localizer: ObservableObject {
             .rulesPlaysTitle: "Special plays",
             .rulesPlaysBody: "Penalties, direct free-kicks, corners, throw-ins and goal-kicks — just like traditional football.",
             .close: "Close",
+            .menuSubtitle: "The classic bottle cap game, straight from the schoolyard",
+            .menuPlay: "Play",
+            .menuRules: "Rules",
+            .menuBackToMenu: "Menu",
         ],
     ]
 }
@@ -116,4 +124,5 @@ enum LocKey: String {
     case rulesSpecialTitle, rulesSpecialBody
     case rulesPlaysTitle, rulesPlaysBody
     case close
+    case menuSubtitle, menuPlay, menuRules, menuBackToMenu
 }
