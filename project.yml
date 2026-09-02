@@ -1,0 +1,34 @@
+name: iBottleCapSoccer
+options:
+  bundleIdPrefix: dev.ividi
+  deploymentTarget:
+    iOS: "16.0"
+configs:
+  Debug: debug
+  Release: release
+targets:
+  iBottleCapSoccer:
+    type: application
+    platform: iOS
+    scheme:
+      testTargets: []
+      gatherCoverageData: false
+    sources:
+      - path: iBottleCapSoccer
+    info:
+      path: iBottleCapSoccer/Info.plist
+      properties:
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+        CFBundleDisplayName: Futebol de Caricas
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.ividi.ibottlecapsoccer
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
