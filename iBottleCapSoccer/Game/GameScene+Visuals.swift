@@ -146,4 +146,50 @@ extension GameScene {
         vignetteNode.zPosition = 2
         fieldLayer.addChild(vignetteNode)
     }
+
+    /// A one-shot confetti burst from the scored goal, in the brand palette. Self-removing.
+    func spawnGoalConfetti(atBottom: Bool) {
+        let key = "confetti-dot"
+        let texture: SKTexture
+        if let cached = Self.textureCache[key] {
+            texture = cached
+        } else {
+            let size = CGSize(width: 8, height: 8)
+            let renderer = UIGraphicsImageRenderer(size: size)
+            let image = renderer.image { ctx in
+                ctx.cgContext.setFillColor(UIColor.white.cgColor)
+                ctx.cgContext.fill(CGRect(origin: .zero, size: size))
+            }
+            texture = SKTexture(image: image)
+            Self.textureCache[key] = texture
+        }
+
+        let emitter = SKEmitterNode()
+        emitter.particleTexture = texture
+        emitter.position = CGPoint(x: Self.fieldWidth / 2, y: atBottom ? wall + 30 : Self.fieldHeight - wall - 30)
+        emitter.zPosition = 60
+        emitter.particleBirthRate = 500
+        emitter.numParticlesToEmit = 50
+        emitter.particleLifetime = 1.0
+        emitter.particleLifetimeRange = 0.5
+        emitter.particlePositionRange = CGVector(dx: goalWidth * 0.9, dy: 10)
+        emitter.emissionAngle = .pi / 2
+        emitter.emissionAngleRange = .pi * 0.85
+        emitter.particleSpeed = 280
+        emitter.particleSpeedRange = 180
+        emitter.yAcceleration = -420
+        emitter.particleAlpha = 1
+        emitter.particleAlphaSpeed = -1.1
+        emitter.particleScale = 0.55
+        emitter.particleScaleRange = 0.3
+        emitter.particleRotationRange = .pi * 2
+        emitter.particleRotationSpeed = 3
+        emitter.particleColorBlendFactor = 1
+        emitter.particleColorSequence = SKKeyframeSequence(
+            keyframeValues: [Brand.uiOrange, Brand.uiOrangeLight, SKColor.white, SKColor(red: 0.85, green: 0.6, blue: 0.12, alpha: 1)],
+            times: [0, 0.33, 0.66, 1]
+        )
+        addChild(emitter)
+        emitter.run(.sequence([.wait(forDuration: 2.0), .removeFromParent()]))
+    }
 }

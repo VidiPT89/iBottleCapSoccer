@@ -43,6 +43,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private let maxSimulationSeconds: TimeInterval = 3.5
     private var simulationStartTime: TimeInterval?
 
+    /// Which team took the shot currently settling, and whether that cap was already in the
+    /// opponent's half at the moment of release — the official rule requires that to shoot on
+    /// goal. An own goal (the ball ending up in your OWN net) always counts regardless of this;
+    /// only a shot at the OPPONENT's goal needs the acting cap to have been advanced.
+    private var lastShotTeam: Team?
+    private var lastShotFromOpponentHalf = false
+
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let goalFeedback = UINotificationFeedbackGenerator()
 
@@ -277,6 +284,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         awaitingReset = false
         wasSimulating = false
         simulationStartTime = nil
+        lastShotTeam = nil
+        lastShotFromOpponentHalf = false
         viewModel?.isSimulating = false
         highlightActiveTeam()
     }
@@ -332,12 +341,20 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         guard !awaitingReset else { return }
         let names = [contact.bodyA.node?.name, contact.bodyB.node?.name]
         if names.contains("goal-bottom") {
+            // Bottom net belongs to home. Away benefits either by a legal shot (their cap was
+            // already in home's half) or by home putting it in their own net (always counts).
+            if lastShotTeam == .away, !lastShotFromOpponentHalf { return }
             awaitingReset = true
             goalFeedback.notificationOccurred(.success)
+            SoundManager.shared.play(.goal)
+            spawnGoalConfetti(atBottom: true)
             viewModel?.goalScored(by: .away)
         } else if names.contains("goal-top") {
+            if lastShotTeam == .home, !lastShotFromOpponentHalf { return }
             awaitingReset = true
             goalFeedback.notificationOccurred(.success)
+            SoundManager.shared.play(.goal)
+            spawnGoalConfetti(atBottom: false)
             viewModel?.goalScored(by: .home)
         }
     }
@@ -417,10 +434,19 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
     /// Shared by human drag-release and the bot: launches `node` in `direction` (unit vector) with `power`.
     func applyShot(to node: SKShapeNode, direction: CGVector, power: CGFloat) {
+        if let name = node.name {
+            let team: Team = name.hasPrefix("home-") ? .home : .away
+            lastShotTeam = team
+            // Opponent's half: above the midline for home (attacking upward), below it for away.
+            lastShotFromOpponentHalf = team == .home
+                ? node.position.y > Self.fieldHeight / 2
+                : node.position.y < Self.fieldHeight / 2
+        }
         node.physicsBody?.velocity = .zero
         node.physicsBody?.applyImpulse(CGVector(dx: direction.dx * power, dy: direction.dy * power))
         viewModel?.isSimulating = true
         wasSimulating = true
+        SoundManager.shared.play(.kick)
         // Set here (not just in `update`) so the safety timeout also covers the very first
         // frame after a shot — `update`'s own start-time capture only fires on a moving->moving
         // transition, which never happens for a shot that's already marked as simulating.

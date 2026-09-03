@@ -58,6 +58,7 @@ final class GameViewModel: ObservableObject {
         scene?.resetKickoff()
         scene?.scheduleBotTurnIfNeeded()
         startTimer()
+        SoundManager.shared.play(.whistle)
     }
 
     /// Called when the match screen is dismissed (back to menu) — freezes the clock without resetting progress.
@@ -105,10 +106,12 @@ final class GameViewModel: ObservableObject {
                 self.scene?.resetKickoff()
                 if !self.isMenuPaused { self.isPaused = false }
                 self.scene?.scheduleBotTurnIfNeeded()
+                SoundManager.shared.play(.whistle)
             }
         } else {
             timerCancellable?.cancel()
             isFullTime = true
+            SoundManager.shared.play(.whistle)
         }
     }
 
@@ -153,6 +156,8 @@ final class GameViewModel: ObservableObject {
     /// Configures this view model from a snapshot received via Game Center and asks the
     /// scene to render it (teleporting nodes, never re-simulating a turn it didn't play).
     func applyOnlineState(_ state: OnlineMatchState, localTeam: Team) {
+        let isFirstTime = !hasStarted
+        let wasFullTime = isFullTime
         mode = .online
         localOnlineTeam = localTeam
         homeScore = state.homeScore
@@ -165,6 +170,11 @@ final class GameViewModel: ObservableObject {
         hasStarted = true
         timerCancellable?.cancel()
         scene?.applyOnlineSnapshot(state)
+        if isFirstTime {
+            SoundManager.shared.play(.whistle)
+        } else if isFullTime, !wasFullTime {
+            SoundManager.shared.play(.whistle)
+        }
     }
 
     /// This device is the one creating a brand-new online match — seed a fresh kickoff and
@@ -183,5 +193,6 @@ final class GameViewModel: ObservableObject {
         timerCancellable?.cancel()
         scene?.resetKickoff()
         scene?.submitOnlineTurnIfNeeded()
+        SoundManager.shared.play(.whistle)
     }
 }
