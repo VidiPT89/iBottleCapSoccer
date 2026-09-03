@@ -151,12 +151,25 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             addChild(node)
         }
 
+        // Seals each goal mouth for caps only (the ball's collisionBitMask doesn't include
+        // this category, so it still passes through freely to reach the goal sensor and score).
+        func capOnlyGoalLine(_ from: CGPoint, _ to: CGPoint) {
+            let node = SKNode()
+            node.physicsBody = SKPhysicsBody(edgeFrom: from, to: to)
+            node.physicsBody?.categoryBitMask = PhysicsCategory.goalLine
+            node.physicsBody?.collisionBitMask = PhysicsCategory.cap
+            addChild(node)
+        }
+
         wallSeg(CGPoint(x: pitch.minX, y: pitch.minY), CGPoint(x: pitch.minX, y: pitch.maxY))
         wallSeg(CGPoint(x: pitch.maxX, y: pitch.minY), CGPoint(x: pitch.maxX, y: pitch.maxY))
         wallSeg(CGPoint(x: pitch.minX, y: pitch.minY), CGPoint(x: gx0, y: pitch.minY))
         wallSeg(CGPoint(x: gx1, y: pitch.minY), CGPoint(x: pitch.maxX, y: pitch.minY))
         wallSeg(CGPoint(x: pitch.minX, y: pitch.maxY), CGPoint(x: gx0, y: pitch.maxY))
         wallSeg(CGPoint(x: gx1, y: pitch.maxY), CGPoint(x: pitch.maxX, y: pitch.maxY))
+
+        capOnlyGoalLine(CGPoint(x: gx0, y: pitch.minY), CGPoint(x: gx1, y: pitch.minY))
+        capOnlyGoalLine(CGPoint(x: gx0, y: pitch.maxY), CGPoint(x: gx1, y: pitch.maxY))
     }
 
     // MARK: - Caps & ball
@@ -192,7 +205,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         body.affectedByGravity = false
         body.usesPreciseCollisionDetection = true
         body.categoryBitMask = PhysicsCategory.cap
-        body.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball | PhysicsCategory.wall
+        body.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball | PhysicsCategory.wall | PhysicsCategory.goalLine
         body.contactTestBitMask = PhysicsCategory.none
         node.physicsBody = body
 
