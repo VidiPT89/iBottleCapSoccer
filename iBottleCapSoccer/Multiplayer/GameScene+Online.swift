@@ -30,6 +30,7 @@ extension GameScene {
         ball.physicsBody?.velocity = .zero
         wasSimulating = false
         awaitingReset = false
+        viewModel?.isSimulating = false
         highlightActiveTeam()
     }
 

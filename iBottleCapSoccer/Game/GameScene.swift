@@ -231,6 +231,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         allBodies = (homeCaps + awayCaps + [ball]).compactMap { $0.physicsBody }
         awaitingReset = false
         wasSimulating = false
+        viewModel?.isSimulating = false
         highlightActiveTeam()
     }
 
