@@ -12,10 +12,12 @@ final class GameViewModel: ObservableObject {
     @Published var showGoalFlash = false
     @Published var isFullTime = false
     @Published var isSimulating = false
+    @Published var hasStarted = false
 
     static let halfDuration = 15 * 60
 
     private var timerCancellable: AnyCancellable?
+    private var isMenuPaused = false
     weak var scene: GameScene?
 
     var clockText: String {
@@ -32,9 +34,24 @@ final class GameViewModel: ObservableObject {
         currentTeam = .home
         actionsLeft = 1
         isPaused = false
+        isMenuPaused = false
         isFullTime = false
-        scene?.resetKickoff(scorer: nil)
+        hasStarted = true
+        scene?.resetKickoff()
         startTimer()
+    }
+
+    /// Called when the match screen is dismissed (back to menu) — freezes the clock without resetting progress.
+    func pause() {
+        isMenuPaused = true
+        isPaused = true
+    }
+
+    /// Called when returning to an in-progress match — resumes the clock unless the match has already ended.
+    func resume() {
+        isMenuPaused = false
+        guard hasStarted, !isFullTime else { return }
+        isPaused = false
     }
 
     private func startTimer() {
@@ -61,8 +78,9 @@ final class GameViewModel: ObservableObject {
             half = .second
             timeLeft = Self.halfDuration
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { [weak self] in
-                self?.scene?.resetKickoff(scorer: nil)
-                self?.isPaused = false
+                guard let self else { return }
+                self.scene?.resetKickoff()
+                if !self.isMenuPaused { self.isPaused = false }
             }
         } else {
             timerCancellable?.cancel()
@@ -79,7 +97,7 @@ final class GameViewModel: ObservableObject {
             self?.showGoalFlash = false
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) { [weak self] in
-            self?.scene?.resetKickoff(scorer: team)
+            self?.scene?.resetKickoff()
         }
     }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import SpriteKit
 
 enum AppScreen {
     case splash
@@ -8,6 +9,12 @@ enum AppScreen {
 
 struct RootView: View {
     @State private var screen: AppScreen = .splash
+    @StateObject private var viewModel = GameViewModel()
+    @State private var scene: GameScene = {
+        let s = GameScene(size: CGSize(width: GameScene.fieldWidth, height: GameScene.fieldHeight))
+        s.scaleMode = .aspectFit
+        return s
+    }()
 
     var body: some View {
         ZStack {
@@ -19,16 +26,20 @@ struct RootView: View {
                 .transition(.opacity)
                 .zIndex(1)
             case .menu:
-                MainMenuView {
+                MainMenuView(viewModel: viewModel) {
                     withAnimation(.easeOut(duration: 0.35)) { screen = .game }
                 }
                 .transition(.opacity)
             case .game:
-                MainGameView {
+                MainGameView(viewModel: viewModel, scene: scene) {
                     withAnimation(.easeOut(duration: 0.35)) { screen = .menu }
                 }
                 .transition(.opacity)
             }
+        }
+        .onAppear {
+            scene.viewModel = viewModel
+            viewModel.scene = scene
         }
     }
 }

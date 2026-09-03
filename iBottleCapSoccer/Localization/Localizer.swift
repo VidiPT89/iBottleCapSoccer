@@ -68,8 +68,12 @@ final class Localizer: ObservableObject {
             .close: "Fechar",
             .menuSubtitle: "O clássico jogo de caricas, direto do recreio",
             .menuPlay: "Jogar",
+            .menuContinue: "Continuar",
             .menuRules: "Regras",
             .menuBackToMenu: "Menu",
+            .menuStep1: "Arrasta",
+            .menuStep2: "Solta",
+            .menuStep3: "Marca",
         ],
         .en: [
             .appTitle: "Bottle Cap Soccer",
@@ -105,8 +109,12 @@ final class Localizer: ObservableObject {
             .close: "Close",
             .menuSubtitle: "The classic bottle cap game, straight from the schoolyard",
             .menuPlay: "Play",
+            .menuContinue: "Continue",
             .menuRules: "Rules",
             .menuBackToMenu: "Menu",
+            .menuStep1: "Drag",
+            .menuStep2: "Release",
+            .menuStep3: "Score",
         ],
     ]
 }
@@ -124,5 +132,6 @@ enum LocKey: String {
     case rulesSpecialTitle, rulesSpecialBody
     case rulesPlaysTitle, rulesPlaysBody
     case close
-    case menuSubtitle, menuPlay, menuRules, menuBackToMenu
+    case menuSubtitle, menuPlay, menuContinue, menuRules, menuBackToMenu
+    case menuStep1, menuStep2, menuStep3
 }

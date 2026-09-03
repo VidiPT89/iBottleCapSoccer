@@ -1,31 +1,8 @@
-import CoreGraphics
-
 enum Team: String {
     case home
     case away
 
     var opponent: Team { self == .home ? .away : .home }
-}
-
-struct Carica: Identifiable {
-    let id: String
-    let team: Team
-    var position: CGPoint
-    let weight: Double
-    let isGoalkeeper: Bool
-}
-
-struct Ball {
-    var position: CGPoint
-    var velocity: CGVector
-    var isMoving: Bool
-}
-
-struct Field {
-    static let width: CGFloat = 110
-    static let length: CGFloat = 170
-    static let goalWidth: CGFloat = 15.5
-    static let goalDepth: CGFloat = 5.5
 }
 
 enum MatchHalf: Int {

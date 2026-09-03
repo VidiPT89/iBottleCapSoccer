@@ -4,12 +4,8 @@ import SpriteKit
 struct MainGameView: View {
     @EnvironmentObject private var localizer: Localizer
     @EnvironmentObject private var theme: ThemeManager
-    @StateObject private var viewModel = GameViewModel()
-    @State private var scene: GameScene = {
-        let s = GameScene(size: CGSize(width: GameScene.fieldWidth, height: GameScene.fieldHeight))
-        s.scaleMode = .aspectFit
-        return s
-    }()
+    @ObservedObject var viewModel: GameViewModel
+    var scene: GameScene
     @State private var showRules = false
 
     var onExit: () -> Void
@@ -29,9 +25,14 @@ struct MainGameView: View {
         .padding(.top, 8)
         .background(Color(uiColor: .systemBackground).ignoresSafeArea())
         .onAppear {
-            scene.viewModel = viewModel
-            viewModel.scene = scene
-            viewModel.startNewMatch()
+            if viewModel.hasStarted {
+                viewModel.resume()
+            } else {
+                viewModel.startNewMatch()
+            }
+        }
+        .onDisappear {
+            viewModel.pause()
         }
         .sheet(isPresented: $showRules) { RulesView() }
     }

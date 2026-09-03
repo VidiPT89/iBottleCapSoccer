@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct SplashView: View {
+    @EnvironmentObject private var localizer: Localizer
     var onFinish: () -> Void
 
     @State private var badgeRotation: Double = 0
     @State private var barWidth: CGFloat = 0
     @State private var appeared = false
+    @State private var finished = false
 
     private let autoDismissDelay: Double = 2.6
 
@@ -70,8 +72,8 @@ struct SplashView: View {
                 .font(.footnote)
                 .padding(.top, 4)
 
-                Button(action: onFinish) {
-                    Text(Localizer.shared.t(.splashSkip))
+                Button(action: finish) {
+                    Text(localizer.t(.splashSkip))
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.75))
                         .padding(.horizontal, 18)
@@ -90,8 +92,14 @@ struct SplashView: View {
                 badgeRotation = 8
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
-                onFinish()
+                finish()
             }
         }
+    }
+
+    private func finish() {
+        guard !finished else { return }
+        finished = true
+        onFinish()
     }
 }

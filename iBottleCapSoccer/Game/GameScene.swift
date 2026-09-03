@@ -1,4 +1,5 @@
 import SpriteKit
+import UIKit
 
 final class GameScene: SKScene, SKPhysicsContactDelegate {
 
@@ -27,6 +28,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
     private var wasSimulating = false
     private var awaitingReset = false
+    private var allBodies: [SKPhysicsBody] = []
+
+    private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+    private let goalFeedback = UINotificationFeedbackGenerator()
 
     override func didMove(to view: SKView) {
         scaleMode = .aspectFit
@@ -34,7 +39,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = .zero
         buildField()
-        resetKickoff(scorer: nil)
+        resetKickoff()
     }
 
     // MARK: - Field
@@ -119,9 +124,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         func wallSeg(_ from: CGPoint, _ to: CGPoint) {
             let node = SKNode()
-            let path = CGMutablePath()
-            path.move(to: from)
-            path.addLine(to: to)
             node.physicsBody = SKPhysicsBody(edgeFrom: from, to: to)
             node.physicsBody?.categoryBitMask = PhysicsCategory.wall
             node.physicsBody?.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball
@@ -162,6 +164,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         body.friction = 0.2
         body.allowsRotation = false
         body.affectedByGravity = false
+        body.usesPreciseCollisionDetection = true
         body.categoryBitMask = PhysicsCategory.cap
         body.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball | PhysicsCategory.wall
         body.contactTestBitMask = PhysicsCategory.none
@@ -186,6 +189,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         body.friction = 0.05
         body.allowsRotation = false
         body.affectedByGravity = false
+        body.usesPreciseCollisionDetection = true
         body.categoryBitMask = PhysicsCategory.ball
         body.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball | PhysicsCategory.wall
         body.contactTestBitMask = PhysicsCategory.goalSensor
@@ -193,7 +197,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         return node
     }
 
-    func resetKickoff(scorer: Team?) {
+    func resetKickoff() {
         homeCaps.forEach { $0.removeFromParent() }
         awayCaps.forEach { $0.removeFromParent() }
         ball?.removeFromParent()
@@ -216,7 +220,9 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         ball = makeBall(at: CGPoint(x: Self.fieldWidth / 2, y: Self.fieldHeight / 2))
         addChild(ball)
 
+        allBodies = (homeCaps + awayCaps + [ball]).compactMap { $0.physicsBody }
         awaitingReset = false
+        wasSimulating = false
         highlightActiveTeam()
     }
 
@@ -237,15 +243,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Simulation
 
     override func update(_ currentTime: TimeInterval) {
-        let bodies = (homeCaps + awayCaps + [ball!]).compactMap { $0.physicsBody }
-        let moving = bodies.contains { hypot($0.velocity.dx, $0.velocity.dy) > 1.2 }
+        guard !allBodies.isEmpty else { return }
+        let moving = allBodies.contains { hypot($0.velocity.dx, $0.velocity.dy) > 1.2 }
 
         if moving {
             wasSimulating = true
             if viewModel?.isSimulating == false { viewModel?.isSimulating = true }
         } else if wasSimulating {
             wasSimulating = false
-            for b in bodies { b.velocity = .zero }
+            for b in allBodies { b.velocity = .zero }
             viewModel?.isSimulating = false
             if !awaitingReset {
                 viewModel?.turnEnded()
@@ -261,9 +267,11 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let names = [contact.bodyA.node?.name, contact.bodyB.node?.name]
         if names.contains("goal-bottom") {
             awaitingReset = true
+            goalFeedback.notificationOccurred(.success)
             viewModel?.goalScored(by: .away)
         } else if names.contains("goal-top") {
             awaitingReset = true
+            goalFeedback.notificationOccurred(.success)
             viewModel?.goalScored(by: .home)
         }
     }
@@ -306,19 +314,23 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         guard let node = dragNode, let touch = touches.first else { return }
         let point = touch.location(in: self)
-        var dx = dragStart.x - point.x
-        var dy = dragStart.y - point.y
-        var dist = hypot(dx, dy)
+        let dx = dragStart.x - point.x
+        let dy = dragStart.y - point.y
+        let dist = min(hypot(dx, dy), maxDrag)
         guard dist > 8 else { return }
-        dist = min(dist, maxDrag)
         let angle = atan2(dy, dx)
-        dx = cos(angle) * dist
-        dy = sin(angle) * dist
         let power = (dist / maxDrag) * maxImpulse
         node.physicsBody?.velocity = .zero
         node.physicsBody?.applyImpulse(CGVector(dx: cos(angle) * power, dy: sin(angle) * power))
         viewModel?.isSimulating = true
         wasSimulating = true
+        impactFeedback.impactOccurred(intensity: dist / maxDrag)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        dragNode = nil
+        aimLine?.removeFromParent()
+        aimLine = nil
     }
 
     private func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
