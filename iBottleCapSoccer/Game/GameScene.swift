@@ -54,6 +54,14 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastShotTeam: Team?
     private var lastShotFromOpponentHalf = false
 
+    /// Foul tracking: a "carga" is the acting cap hitting an opponent cap before it ever
+    /// touches the ball. Three fouls in a row by the same team hands the opponent a free kick
+    /// (an extra, uninterrupted turn), per the traditional rule in section 6.1 of the design doc.
+    private weak var lastShotNode: SKShapeNode?
+    private var shotTouchedBall = false
+    private var foulRegisteredThisShot = false
+    private var foulStreak: [Team: Int] = [.home: 0, .away: 0]
+
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let goalFeedback = UINotificationFeedbackGenerator()
 
@@ -198,10 +206,9 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let node = SKShapeNode(circleOfRadius: radius)
         node.position = point
         node.name = "\(team.rawValue)-\(isGK ? "gk" : "\(index)")"
-        let base: SKColor = team == .home ? SKColor(red: 0.83, green: 0.38, blue: 0.02, alpha: 1) : SKColor(red: 0.1, green: 0.1, blue: 0.12, alpha: 1)
-        let highlight: SKColor = team == .home ? SKColor(red: 1, green: 0.72, blue: 0.42, alpha: 1) : SKColor(red: 0.42, green: 0.42, blue: 0.46, alpha: 1)
+        let kit = team == .home ? KitManager.shared.homeKit : KitManager.shared.awayKit
         node.fillColor = .white
-        node.fillTexture = glossyTexture(base: base, highlight: highlight, diameter: radius * 2, key: "cap-\(team.rawValue)-\(Int(radius))")
+        node.fillTexture = glossyTexture(base: kit.base, highlight: kit.highlight, diameter: radius * 2, key: "cap-\(kit.rawValue)-\(Int(radius))")
         node.strokeColor = SKColor.black.withAlphaComponent(0.35)
         node.lineWidth = 2
         node.zPosition = 5
@@ -227,7 +234,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         body.usesPreciseCollisionDetection = true
         body.categoryBitMask = PhysicsCategory.cap
         body.collisionBitMask = PhysicsCategory.cap | PhysicsCategory.ball | PhysicsCategory.wall | PhysicsCategory.goalLine
-        body.contactTestBitMask = PhysicsCategory.none
+        // Needed to detect fouls (a cap charging into an opponent cap before the ball).
+        body.contactTestBitMask = PhysicsCategory.cap | PhysicsCategory.ball
         node.physicsBody = body
 
         return node
@@ -294,6 +302,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         simulationStartTime = nil
         lastShotTeam = nil
         lastShotFromOpponentHalf = false
+        lastShotNode = nil
+        shotTouchedBall = false
+        foulRegisteredThisShot = false
+        foulStreak = [.home: 0, .away: 0]
         viewModel?.isSimulating = false
         highlightActiveTeam()
     }
@@ -331,6 +343,20 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             viewModel?.isSimulating = false
             guard !awaitingReset else { return }
 
+            if let team = lastShotTeam {
+                if foulRegisteredThisShot {
+                    foulStreak[team, default: 0] += 1
+                    if foulStreak[team, default: 0] >= 3 {
+                        foulStreak[team] = 0
+                        viewModel?.grantFreeKick(to: team.opponent)
+                    } else {
+                        viewModel?.reportFoul(team: team, streak: foulStreak[team, default: 0])
+                    }
+                } else {
+                    foulStreak[team] = 0
+                }
+            }
+
             let turnPassed = viewModel?.turnEnded() ?? false
             if viewModel?.mode.isOnline == true {
                 // Only hand the turn to Game Center once this device's full turn (all its
@@ -347,6 +373,19 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func didBegin(_ contact: SKPhysicsContact) {
         guard !awaitingReset else { return }
+
+        if !shotTouchedBall, !foulRegisteredThisShot, let acting = lastShotNode, let actingTeam = lastShotTeam {
+            let a = contact.bodyA.node, b = contact.bodyB.node
+            let other: SKNode? = a === acting ? b : (b === acting ? a : nil)
+            if let other {
+                if other.name == "ball" {
+                    shotTouchedBall = true
+                } else if let otherName = other.name, otherName.hasPrefix(actingTeam.opponent.rawValue) {
+                    foulRegisteredThisShot = true
+                }
+            }
+        }
+
         let names = [contact.bodyA.node?.name, contact.bodyB.node?.name]
         if names.contains("goal-bottom") {
             // Bottom net belongs to home. Away benefits either by a legal shot (their cap was
@@ -473,6 +512,9 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
                 : node.position.y < Self.fieldHeight / 2
             if name.hasSuffix("gk") { power *= gkImpulseBonus }
         }
+        lastShotNode = node
+        shotTouchedBall = false
+        foulRegisteredThisShot = false
         node.physicsBody?.velocity = .zero
         node.physicsBody?.applyImpulse(CGVector(dx: direction.dx * power, dy: direction.dy * power))
         viewModel?.isSimulating = true

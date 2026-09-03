@@ -9,6 +9,8 @@ struct MainGameView: View {
     var scene: GameScene
     @State private var showRules = false
     @State private var showModePicker = false
+    @State private var zoom: CGFloat = 1
+    @State private var lastZoom: CGFloat = 1
 
     var body: some View {
         VStack(spacing: 14) {
@@ -106,12 +108,33 @@ struct MainGameView: View {
                     .frame(width: geo.size.width, height: geo.size.width * (GameScene.fieldHeight / GameScene.fieldWidth))
                     .clipShape(RoundedRectangle(cornerRadius: 18))
                     .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black.opacity(0.5), lineWidth: 6))
+                    .scaleEffect(zoom)
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                zoom = min(max(lastZoom * value, 1), 2.2)
+                            }
+                            .onEnded { _ in lastZoom = zoom }
+                    )
+                    .onTapGesture(count: 2) {
+                        withAnimation(.spring(response: 0.3)) { zoom = 1; lastZoom = 1 }
+                    }
 
                 if viewModel.showGoalFlash {
                     Text(localizer.t(.goalText))
                         .font(.system(size: 46, weight: .black))
                         .foregroundColor(.white)
                         .shadow(color: Brand.orange, radius: 20)
+                        .transition(.scale.combined(with: .opacity))
+                }
+
+                if let flash = viewModel.foulFlash {
+                    Text(flash == "freeKick" ? localizer.t(.freeKickText) : localizer.t(.foulText))
+                        .font(.system(size: 26, weight: .black))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(Color.black.opacity(0.55)))
                         .transition(.scale.combined(with: .opacity))
                 }
 

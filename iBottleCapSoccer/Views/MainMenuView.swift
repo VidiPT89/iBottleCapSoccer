@@ -4,12 +4,17 @@ struct MainMenuView: View {
     @EnvironmentObject private var localizer: Localizer
     @EnvironmentObject private var theme: ThemeManager
     @ObservedObject var viewModel: GameViewModel
+    @ObservedObject private var soundManager = SoundManager.shared
     @State private var showRules = false
     @State private var showModePicker = false
+    @State private var showCustomize = false
+    @State private var showStats = false
     @State private var badgeFloat = false
 
     var onPlay: () -> Void
     var onPlayOnline: () -> Void
+    var onTraining: () -> Void
+    var onCareer: () -> Void
 
     private var isResuming: Bool { viewModel.hasStarted && !viewModel.isFullTime }
 
@@ -68,6 +73,14 @@ struct MainMenuView: View {
             )
             .preferredColorScheme(theme.theme.colorScheme)
         }
+        .sheet(isPresented: $showCustomize) {
+            CustomizeKitsView()
+                .preferredColorScheme(theme.theme.colorScheme)
+        }
+        .sheet(isPresented: $showStats) {
+            StatsView()
+                .preferredColorScheme(theme.theme.colorScheme)
+        }
     }
 
     private var background: some View {
@@ -96,6 +109,18 @@ struct MainMenuView: View {
                 Label(themeLabel(theme.theme), systemImage: theme.theme.icon)
             }
             .pickerStyle(.inline)
+
+            Divider()
+
+            Toggle(isOn: $soundManager.isAmbientEnabled) {
+                Label(localizer.t(.ambientToggle), systemImage: "speaker.wave.2.fill")
+            }
+            Button { showCustomize = true } label: {
+                Label(localizer.t(.customizeTitle), systemImage: "paintpalette.fill")
+            }
+            Button { showStats = true } label: {
+                Label(localizer.t(.statsTitle), systemImage: "chart.bar.fill")
+            }
         } label: {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 15, weight: .semibold))
@@ -191,6 +216,11 @@ struct MainMenuView: View {
                     .shadow(color: Brand.orange.opacity(0.35), radius: 16, y: 6)
             }
 
+            HStack(spacing: 12) {
+                secondaryButton(localizer.t(.menuTraining), icon: "target", action: onTraining)
+                secondaryButton(localizer.t(.menuCareer), icon: "trophy.fill", action: onCareer)
+            }
+
             Button { showRules = true } label: {
                 Text(localizer.t(.menuRules))
                     .font(.subheadline.bold())
@@ -201,6 +231,21 @@ struct MainMenuView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.15)))
             }
+        }
+    }
+
+    private func secondaryButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon).font(.system(size: 16, weight: .semibold))
+                Text(title).font(.caption.bold())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(Color.white.opacity(0.08))
+            .foregroundColor(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.15)))
         }
     }
 

@@ -14,6 +14,13 @@ final class GameViewModel: ObservableObject {
     @Published var isSimulating = false
     @Published var hasStarted = false
     @Published var mode: GameMode = .local
+    /// Transient banner text for a foul or an earned free kick — mirrors `showGoalFlash`.
+    @Published var foulFlash: String?
+    private var extraTurnOwed: Team?
+    /// Set by `CareerView` before starting a stage — fired once the match ends, `true` if the
+    /// player (home) won. Decoupled from view lifecycle so it fires even if the career screen
+    /// isn't the top of the navigation stack when the match finishes.
+    var onMatchFinished: ((Bool) -> Void)?
 
     /// Which team the bot controls, when `mode` is `.bot`.
     let botTeam: Team = .away
@@ -51,6 +58,9 @@ final class GameViewModel: ObservableObject {
         timeLeft = Self.halfDuration
         currentTeam = .home
         actionsLeft = Self.actionsPerTurn
+        extraTurnOwed = nil
+        foulFlash = nil
+        statsRecorded = false
         isPaused = false
         isMenuPaused = false
         isFullTime = false
@@ -59,12 +69,14 @@ final class GameViewModel: ObservableObject {
         scene?.scheduleBotTurnIfNeeded()
         startTimer()
         SoundManager.shared.play(.whistle)
+        SoundManager.shared.startAmbientLoop()
     }
 
     /// Called when the match screen is dismissed (back to menu) — freezes the clock without resetting progress.
     func pause() {
         isMenuPaused = true
         isPaused = true
+        SoundManager.shared.stopAmbientLoop()
     }
 
     /// Called when returning to an in-progress match — resumes input/clock unless the match has
@@ -75,6 +87,7 @@ final class GameViewModel: ObservableObject {
         isMenuPaused = false
         guard hasStarted, !isFullTime else { return }
         isPaused = false
+        SoundManager.shared.startAmbientLoop()
     }
 
     private func startTimer() {
@@ -112,17 +125,34 @@ final class GameViewModel: ObservableObject {
             timerCancellable?.cancel()
             isFullTime = true
             SoundManager.shared.play(.whistle)
+            SoundManager.shared.stopAmbientLoop()
+            recordMatchResultIfNeeded()
         }
+    }
+
+    /// Which side represents "the player" for stats purposes: `.home` in Local/Bot, or this
+    /// device's own team when playing online.
+    private var playerTeam: Team { mode.isOnline ? localOnlineTeam : .home }
+    private var statsRecorded = false
+
+    private func recordMatchResultIfNeeded() {
+        guard !statsRecorded else { return }
+        statsRecorded = true
+        let won = playerTeam == .home ? homeScore > awayScore : awayScore > homeScore
+        StatsManager.shared.recordMatch(won: won)
+        onMatchFinished?(won)
     }
 
     func goalScored(by team: Team) {
         if team == .home { homeScore += 1 } else { awayScore += 1 }
+        if team == playerTeam { StatsManager.shared.recordGoal() }
         showGoalFlash = true
         currentTeam = team.opponent
         actionsLeft = Self.actionsPerTurn
 
         if mode.isOnline, homeScore >= OnlineMatchState.targetScore || awayScore >= OnlineMatchState.targetScore {
             isFullTime = true
+            recordMatchResultIfNeeded()
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { [weak self] in
@@ -146,9 +176,33 @@ final class GameViewModel: ObservableObject {
     func turnEnded() -> Bool {
         actionsLeft -= 1
         guard actionsLeft <= 0 else { return false }
+        if extraTurnOwed == currentTeam {
+            // This team just played the free kick they were owed — give them one more turn
+            // instead of alternating away, then the streak is spent.
+            extraTurnOwed = nil
+            actionsLeft = Self.actionsPerTurn
+            return true
+        }
         currentTeam = currentTeam.opponent
         actionsLeft = Self.actionsPerTurn
         return true
+    }
+
+    /// Called when a team charges an opponent cap without touching the ball first, three times
+    /// in a row — the opponent earns an extra, uninterrupted turn right after their next one.
+    func grantFreeKick(to team: Team) {
+        extraTurnOwed = team
+        foulFlash = "freeKick"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { [weak self] in
+            if self?.foulFlash == "freeKick" { self?.foulFlash = nil }
+        }
+    }
+
+    func reportFoul(team: Team, streak: Int) {
+        foulFlash = "foul:\(streak)"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { [weak self] in
+            if self?.foulFlash == "foul:\(streak)" { self?.foulFlash = nil }
+        }
     }
 
     // MARK: - Online matches
@@ -171,9 +225,11 @@ final class GameViewModel: ObservableObject {
         timerCancellable?.cancel()
         scene?.applyOnlineSnapshot(state)
         if isFirstTime {
+            statsRecorded = false
             SoundManager.shared.play(.whistle)
         } else if isFullTime, !wasFullTime {
             SoundManager.shared.play(.whistle)
+            recordMatchResultIfNeeded()
         }
     }
 
@@ -186,6 +242,9 @@ final class GameViewModel: ObservableObject {
         awayScore = 0
         currentTeam = .home
         actionsLeft = Self.actionsPerTurn
+        extraTurnOwed = nil
+        foulFlash = nil
+        statsRecorded = false
         isPaused = false
         isMenuPaused = false
         isFullTime = false

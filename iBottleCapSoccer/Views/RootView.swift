@@ -9,6 +9,8 @@ enum AppScreen {
 struct RootView: View {
     @State private var screen: AppScreen = .splash
     @State private var showGame = false
+    @State private var showTraining = false
+    @State private var showCareer = false
     @StateObject private var viewModel = GameViewModel()
     @ObservedObject private var gcManager = GameCenterManager.shared
     @State private var scene: GameScene = {
@@ -33,11 +35,19 @@ struct RootView: View {
                     MainMenuView(
                         viewModel: viewModel,
                         onPlay: { showGame = true },
-                        onPlayOnline: { gcManager.presentMatchmaker() }
+                        onPlayOnline: { gcManager.presentMatchmaker() },
+                        onTraining: { showTraining = true },
+                        onCareer: { showCareer = true }
                     )
                     .toolbar(.hidden, for: .navigationBar)
                     .navigationDestination(isPresented: $showGame) {
                         MainGameView(viewModel: viewModel, scene: scene)
+                    }
+                    .navigationDestination(isPresented: $showTraining) {
+                        PenaltyTrainingView()
+                    }
+                    .navigationDestination(isPresented: $showCareer) {
+                        CareerView(viewModel: viewModel, scene: scene, onPlay: { showGame = true })
                     }
                 }
                 .transition(.opacity)

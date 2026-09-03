@@ -91,6 +91,25 @@ final class Localizer: ObservableObject {
             .onlineOpponentTurn: "Vez do adversário",
             .onlineYourTurn: "A tua vez",
             .botThinking: "O bot está a jogar…",
+            .foulText: "Falta!",
+            .freeKickText: "Livre Direto!",
+            .ambientToggle: "Som ambiente",
+            .statsTitle: "Estatísticas",
+            .statsGoals: "Golos marcados",
+            .statsPlayed: "Jogos disputados",
+            .statsWon: "Jogos ganhos",
+            .customizeTitle: "Personalizar equipas",
+            .customizeHome: "Equipa Casa",
+            .customizeAway: "Equipa Fora",
+            .menuTraining: "Treino de Pénaltis",
+            .menuCareer: "Carreira",
+            .trainingTitle: "Treino de Pénaltis",
+            .trainingScore: "Convertidos",
+            .careerTitle: "Carreira",
+            .careerLocked: "Vence o desafio anterior para desbloquear",
+            .careerWon: "Vencido",
+            .careerPlay: "Jogar",
+            .careerStage: "Desafio",
         ],
         .en: [
             .appTitle: "Bottle Cap Soccer",
@@ -149,6 +168,25 @@ final class Localizer: ObservableObject {
             .onlineOpponentTurn: "Opponent's turn",
             .onlineYourTurn: "Your turn",
             .botThinking: "Bot is playing…",
+            .foulText: "Foul!",
+            .freeKickText: "Free Kick!",
+            .ambientToggle: "Ambient sound",
+            .statsTitle: "Stats",
+            .statsGoals: "Goals scored",
+            .statsPlayed: "Matches played",
+            .statsWon: "Matches won",
+            .customizeTitle: "Customize teams",
+            .customizeHome: "Home Team",
+            .customizeAway: "Away Team",
+            .menuTraining: "Penalty Training",
+            .menuCareer: "Career",
+            .trainingTitle: "Penalty Training",
+            .trainingScore: "Converted",
+            .careerTitle: "Career",
+            .careerLocked: "Win the previous challenge to unlock",
+            .careerWon: "Won",
+            .careerPlay: "Play",
+            .careerStage: "Challenge",
         ],
     ]
 }
@@ -172,4 +210,10 @@ enum LocKey: String {
     case botDifficultyTitle, botEasy, botMedium, botHard
     case cancel, back
     case onlineFirstTo5, onlineWaitingSignIn, onlineOpponentTurn, onlineYourTurn, botThinking
+    case foulText, freeKickText, ambientToggle
+    case statsTitle, statsGoals, statsPlayed, statsWon
+    case customizeTitle, customizeHome, customizeAway
+    case menuTraining, menuCareer
+    case trainingTitle, trainingScore
+    case careerTitle, careerLocked, careerWon, careerPlay, careerStage
 }
