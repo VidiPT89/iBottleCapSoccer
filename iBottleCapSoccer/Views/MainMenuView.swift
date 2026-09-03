@@ -18,57 +18,44 @@ struct MainMenuView: View {
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    HStack(spacing: 8) {
-                        Button(localizer.language.displayCode) { localizer.toggle() }
-                            .buttonStyle(ChipButtonStyle())
-                        Button { theme.cycle() } label: {
-                            Image(systemName: theme.theme.icon)
-                        }
-                        .buttonStyle(ChipButtonStyle())
-                    }
+                    settingsMenu
                 }
                 .padding()
 
-                Spacer(minLength: 12)
+                Spacer()
 
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(colors: [Brand.orange, Brand.amber], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 110, height: 110)
-                        .shadow(color: Brand.orange.opacity(0.4), radius: 24)
-                    Text("⚽").font(.system(size: 52))
-                }
-                .offset(y: badgeFloat ? -8 : 8)
-                .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: badgeFloat)
-
+                badge
                 titleBlock
 
                 Text(localizer.t(.menuSubtitle))
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.6))
                     .multilineTextAlignment(.center)
-                    .padding(.top, 8)
+                    .padding(.top, 10)
                     .padding(.horizontal, 40)
 
                 if isResuming {
                     resumeChip
                 }
 
-                Spacer(minLength: 12)
+                Spacer()
 
-                howToPlayRow
-                    .padding(.bottom, 22)
+                howToPlayLine
+                    .padding(.bottom, 20)
 
                 actionButtons
-                    .padding(.horizontal, 32)
 
                 creditsBlock
-                    .padding(.top, 22)
-                    .padding(.bottom, 20)
+                    .padding(.top, 24)
             }
+            .padding(.horizontal, 28)
+            .padding(.bottom, 16)
         }
         .onAppear { badgeFloat = true }
-        .sheet(isPresented: $showRules) { RulesView() }
+        .sheet(isPresented: $showRules) {
+            RulesView()
+                .preferredColorScheme(theme.theme.colorScheme)
+        }
     }
 
     private var background: some View {
@@ -79,26 +66,73 @@ struct MainMenuView: View {
         .ignoresSafeArea()
     }
 
+    private var settingsMenu: some View {
+        Menu {
+            Picker(selection: $localizer.language) {
+                Text("Português").tag(AppLanguage.pt)
+                Text("English").tag(AppLanguage.en)
+            } label: {
+                Label(localizer.language == .pt ? "Português" : "English", systemImage: "globe")
+            }
+            .pickerStyle(.inline)
+
+            Picker(selection: $theme.theme) {
+                ForEach([AppTheme.system, .light, .dark], id: \.self) { option in
+                    Label(themeLabel(option), systemImage: option.icon).tag(option)
+                }
+            } label: {
+                Label(themeLabel(theme.theme), systemImage: theme.theme.icon)
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Image(systemName: "gearshape.fill")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 38, height: 38)
+                .background(Circle().fill(Color.white.opacity(0.1)))
+        }
+    }
+
+    private func themeLabel(_ t: AppTheme) -> String {
+        switch t {
+        case .system: return localizer.language == .pt ? "Sistema" : "System"
+        case .light: return localizer.language == .pt ? "Claro" : "Light"
+        case .dark: return localizer.language == .pt ? "Escuro" : "Dark"
+        }
+    }
+
+    private var badge: some View {
+        ZStack {
+            Circle()
+                .fill(LinearGradient(colors: [Brand.orange, Brand.amber], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .frame(width: 108, height: 108)
+                .shadow(color: Brand.orange.opacity(0.4), radius: 24)
+            Text("⚽").font(.system(size: 50))
+        }
+        .offset(y: badgeFloat ? -8 : 8)
+        .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: badgeFloat)
+    }
+
     private var titleBlock: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             Text("FUTEBOL")
-                .font(.system(size: 32, weight: .heavy))
+                .font(.system(size: 30, weight: .heavy))
                 .tracking(1.5)
                 .foregroundColor(.white)
             Text("DE CARICAS")
-                .font(.system(size: 36, weight: .heavy))
+                .font(.system(size: 34, weight: .heavy))
                 .tracking(1.5)
                 .foregroundColor(.white)
                 .overlay(
                     LinearGradient(colors: [Brand.orangeLight, Brand.amber], startPoint: .leading, endPoint: .trailing)
                         .mask(
                             Text("DE CARICAS")
-                                .font(.system(size: 36, weight: .heavy))
+                                .font(.system(size: 34, weight: .heavy))
                                 .tracking(1.5)
                         )
                 )
         }
-        .padding(.top, 22)
+        .padding(.top, 18)
     }
 
     private var resumeChip: some View {
@@ -106,8 +140,7 @@ struct MainMenuView: View {
             Circle().fill(Brand.orange).frame(width: 7, height: 7)
             Text("\(viewModel.homeScore) — \(viewModel.awayScore)")
                 .font(.caption.bold().monospacedDigit())
-            Text("·")
-                .foregroundColor(.white.opacity(0.4))
+            Text("·").foregroundColor(.white.opacity(0.4))
             Text(localizer.t(viewModel.half == .first ? .half1 : .half2))
                 .font(.caption2.bold())
         }
@@ -119,26 +152,20 @@ struct MainMenuView: View {
         .padding(.top, 14)
     }
 
-    private var howToPlayRow: some View {
-        HStack(spacing: 22) {
-            howToPlayStep(icon: "hand.draw.fill", text: localizer.t(.menuStep1))
-            howToPlayStep(icon: "bolt.fill", text: localizer.t(.menuStep2))
-            howToPlayStep(icon: "trophy.fill", text: localizer.t(.menuStep3))
+    private var howToPlayLine: some View {
+        HStack(spacing: 8) {
+            Text(localizer.t(.menuStep1))
+            Image(systemName: "arrow.right").font(.caption2)
+            Text(localizer.t(.menuStep2))
+            Image(systemName: "arrow.right").font(.caption2)
+            Text(localizer.t(.menuStep3))
         }
-    }
-
-    private func howToPlayStep(icon: String, text: String) -> some View {
-        VStack(spacing: 6) {
-            ZStack {
-                Circle().fill(Color.white.opacity(0.08)).frame(width: 44, height: 44)
-                Image(systemName: icon).foregroundColor(Brand.orangeLight)
-            }
-            Text(text).font(.caption2.bold()).foregroundColor(.white.opacity(0.65))
-        }
+        .font(.caption.weight(.semibold))
+        .foregroundColor(.white.opacity(0.55))
     }
 
     private var actionButtons: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             Button(action: onPlay) {
                 Text(localizer.t(isResuming ? .menuContinue : .menuPlay))
                     .font(.headline)

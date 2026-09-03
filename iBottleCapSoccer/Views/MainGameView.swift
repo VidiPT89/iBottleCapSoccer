@@ -11,19 +11,54 @@ struct MainGameView: View {
     var onExit: () -> Void
 
     var body: some View {
-        VStack(spacing: 14) {
-            topBar
-            ScoreboardView(viewModel: viewModel)
-            turnBar
-            fieldArea
-            Text(localizer.t(.hintText))
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+        NavigationStack {
+            VStack(spacing: 14) {
+                ScoreboardView(viewModel: viewModel)
+                turnBar
+                fieldArea
+                Text(localizer.t(.hintText))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 10)
+            .background(Color(uiColor: .systemBackground).ignoresSafeArea())
+            .navigationTitle(localizer.t(.appTitle))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: onExit) {
+                        Image(systemName: "chevron.left")
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button(localizer.t(.navRules)) { showRules = true }
+                        Button(localizer.t(.navNewGame)) { viewModel.startNewMatch() }
+                        Divider()
+                        Picker(selection: $localizer.language) {
+                            Text("Português").tag(AppLanguage.pt)
+                            Text("English").tag(AppLanguage.en)
+                        } label: {
+                            Label(localizer.language == .pt ? "Português" : "English", systemImage: "globe")
+                        }
+                        .pickerStyle(.inline)
+                        Picker(selection: $theme.theme) {
+                            Label("System", systemImage: AppTheme.system.icon).tag(AppTheme.system)
+                            Label("Light", systemImage: AppTheme.light.icon).tag(AppTheme.light)
+                            Label("Dark", systemImage: AppTheme.dark.icon).tag(AppTheme.dark)
+                        } label: {
+                            Label("Theme", systemImage: theme.theme.icon)
+                        }
+                        .pickerStyle(.inline)
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
         }
-        .padding(.top, 8)
-        .background(Color(uiColor: .systemBackground).ignoresSafeArea())
         .onAppear {
             if viewModel.hasStarted {
                 viewModel.resume()
@@ -34,52 +69,23 @@ struct MainGameView: View {
         .onDisappear {
             viewModel.pause()
         }
-        .sheet(isPresented: $showRules) { RulesView() }
-    }
-
-    private var topBar: some View {
-        HStack {
-            Button(action: onExit) {
-                Image(systemName: "chevron.left")
-            }
-            .buttonStyle(ChipButtonStyle())
-
-            Spacer(minLength: 8)
-            Button(localizer.language.displayCode) { localizer.toggle() }
-                .buttonStyle(ChipButtonStyle())
-            Button {
-                theme.cycle()
-            } label: {
-                Image(systemName: theme.theme.icon)
-            }
-            .buttonStyle(ChipButtonStyle())
-            Button(localizer.t(.navRules)) { showRules = true }
-                .buttonStyle(ChipButtonStyle())
-            Button(localizer.t(.navNewGame)) { viewModel.startNewMatch() }
-                .buttonStyle(ChipButtonStyle(primary: true))
+        .sheet(isPresented: $showRules) {
+            RulesView()
+                .preferredColorScheme(theme.theme.colorScheme)
         }
-        .padding(.horizontal)
     }
 
     private var turnBar: some View {
-        HStack {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(viewModel.currentTeam == .home ? Brand.orange : Color.gray)
-                    .frame(width: 9, height: 9)
-                Text(localizer.t(viewModel.currentTeam == .home ? .turnHome : .turnAway))
-                    .font(.caption.bold())
-            }
-            .padding(.horizontal, 12).padding(.vertical, 6)
-            .background(Capsule().fill(Color.secondary.opacity(0.12)))
-
-            Spacer()
-
-            Text("\(localizer.t(.actionsLeft)) \(viewModel.actionsLeft)")
-                .font(.caption)
-                .foregroundColor(.secondary)
+        HStack(spacing: 8) {
+            Circle()
+                .fill(viewModel.currentTeam == .home ? Brand.orange : Color.gray)
+                .frame(width: 9, height: 9)
+            Text(localizer.t(viewModel.currentTeam == .home ? .turnHome : .turnAway))
+                .font(.subheadline.bold())
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Capsule().fill(Color.secondary.opacity(0.12)))
     }
 
     private var fieldArea: some View {
@@ -115,30 +121,21 @@ struct MainGameView: View {
                 .font(.system(size: 30, weight: .black))
                 .foregroundColor(Brand.orange)
             Button(localizer.t(.restart)) { viewModel.startNewMatch() }
-                .buttonStyle(ChipButtonStyle(primary: true))
+                .buttonStyle(PrimaryChipButtonStyle())
         }
         .padding(28)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
-struct ChipButtonStyle: ButtonStyle {
-    var primary: Bool = false
+struct PrimaryChipButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.caption.bold())
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                Group {
-                    if primary {
-                        LinearGradient(colors: [Brand.orange, Brand.amber], startPoint: .leading, endPoint: .trailing)
-                    } else {
-                        LinearGradient(colors: [Color.secondary.opacity(0.15)], startPoint: .leading, endPoint: .trailing)
-                    }
-                }
-            )
-            .foregroundColor(primary ? .black : .primary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 9)
+            .background(LinearGradient(colors: [Brand.orange, Brand.amber], startPoint: .leading, endPoint: .trailing))
+            .foregroundColor(.black)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .scaleEffect(configuration.isPressed ? 0.96 : 1)
     }
