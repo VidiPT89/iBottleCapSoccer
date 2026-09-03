@@ -23,6 +23,11 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
     private var aimLine: SKShapeNode?
     private var awaitingResolution = false
     private var wasSimulating = false
+    /// Safety net: a low-friction, high-restitution ball can get wedged bouncing against a wall
+    /// forever without ever dropping below the "stopped" velocity threshold — force the attempt
+    /// to resolve after this long regardless, mirroring `GameScene.maxSimulationSeconds`.
+    private var simulationStartTime: TimeInterval?
+    private let maxSimulationSeconds: TimeInterval = 3.0
 
     override func didMove(to view: SKView) {
         backgroundColor = SKColor(red: 0.059, green: 0.29, blue: 0.169, alpha: 1)
@@ -81,10 +86,13 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
         node.strokeColor = SKColor.black.withAlphaComponent(0.35)
         node.lineWidth = 2
         let body = SKPhysicsBody(circleOfRadius: radius)
-        body.mass = 0.25
-        body.linearDamping = 0.95
-        body.restitution = 0.6
-        body.friction = 0.2
+        // The ball must be much lighter and less damped than a cap, or it barely moves when
+        // struck — same tuning as GameScene's cap (0.275/0.95) vs. ball (0.06/0.7).
+        let isBall = name == "ball"
+        body.mass = isBall ? 0.06 : 0.275
+        body.linearDamping = isBall ? 0.7 : 0.95
+        body.restitution = isBall ? 0.78 : 0.6
+        body.friction = isBall ? 0.05 : 0.2
         body.allowsRotation = false
         body.affectedByGravity = false
         body.usesPreciseCollisionDetection = true
@@ -123,6 +131,7 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
 
         awaitingResolution = false
         wasSimulating = false
+        simulationStartTime = nil
     }
 
     private func patrolKeeper() {
@@ -148,11 +157,15 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
 
     override func update(_ currentTime: TimeInterval) {
         guard let capBody = cap?.physicsBody, let ballBody = ball?.physicsBody else { return }
-        let moving = hypot(capBody.velocity.dx, capBody.velocity.dy) > 5 || hypot(ballBody.velocity.dx, ballBody.velocity.dy) > 5
+        let stillMoving = hypot(capBody.velocity.dx, capBody.velocity.dy) > 5 || hypot(ballBody.velocity.dx, ballBody.velocity.dy) > 5
+        let timedOut = simulationStartTime.map { currentTime - $0 > maxSimulationSeconds } ?? false
+        let moving = stillMoving && !timedOut
         if moving {
+            if !wasSimulating { simulationStartTime = currentTime }
             wasSimulating = true
         } else if wasSimulating, !awaitingResolution {
             wasSimulating = false
+            simulationStartTime = nil
             capBody.velocity = .zero
             ballBody.velocity = .zero
             awaitingResolution = true
