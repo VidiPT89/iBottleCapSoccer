@@ -12,8 +12,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     let capRadius: CGFloat = 32
     private let gkRadius: CGFloat = 34
     private let ballRadius: CGFloat = 20
-    private let maxDrag: CGFloat = 220
-    let maxImpulse: CGFloat = 130
+    /// Beyond this drag distance the shot is already at full power — kept short so a normal
+    /// flick gesture (not a huge cross-screen swipe) reaches max force.
+    private let maxDrag: CGFloat = 150
+    let maxImpulse: CGFloat = 170
+    /// A drag that barely clears the `dist > 8` no-op threshold still lands a real shot,
+    /// not a token nudge — this is the power floor for it.
+    private let minPowerRatio: CGFloat = 0.3
 
     weak var viewModel: GameViewModel?
 
@@ -206,6 +211,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func resetKickoff() {
+        dragNode = nil
+        aimLine?.removeFromParent()
+        aimLine = nil
+
         homeCaps.forEach { $0.removeFromParent() }
         awayCaps.forEach { $0.removeFromParent() }
         ball?.removeFromParent()
@@ -307,15 +316,30 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let node = dragNode, let touch = touches.first else { return }
         let point = touch.location(in: self)
+        let dx = dragStart.x - point.x
+        let dy = dragStart.y - point.y
+        let rawDist = hypot(dx, dy)
+        let ratio = min(rawDist / maxDrag, 1)
+        // Clamp the drawn line to the drag distance that actually caps out the power, so what
+        // the player sees always matches what they'll get — dragging further doesn't lie.
+        let clampedDist = min(rawDist, maxDrag)
+        let angle = atan2(dy, dx)
+        let tip = CGPoint(x: node.position.x - cos(angle) * clampedDist, y: node.position.y - sin(angle) * clampedDist)
+
         aimLine?.removeFromParent()
         let line = SKShapeNode(path: {
             let p = CGMutablePath()
             p.move(to: node.position)
-            p.addLine(to: point)
+            p.addLine(to: tip)
             return p
         }())
-        line.strokeColor = Brand.uiOrange
-        line.lineWidth = 5
+        line.strokeColor = SKColor(
+            red: 1,
+            green: 0.75 - ratio * 0.55,
+            blue: 0.1 + (1 - ratio) * 0.1,
+            alpha: 1
+        )
+        line.lineWidth = 5 + ratio * 4
         line.lineCap = .round
         line.zPosition = 20
         addChild(line)
@@ -332,12 +356,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let point = touch.location(in: self)
         let dx = dragStart.x - point.x
         let dy = dragStart.y - point.y
-        let dist = min(hypot(dx, dy), maxDrag)
-        guard dist > 8 else { return }
+        let rawDist = hypot(dx, dy)
+        guard rawDist > 8 else { return }
+        let ratio = min(rawDist / maxDrag, 1)
         let angle = atan2(dy, dx)
-        let power = (dist / maxDrag) * maxImpulse
+        // Curved (not linear) so short-to-medium drags still feel like a real kick, not a nudge.
+        let curved = max(minPowerRatio, pow(ratio, 0.6))
+        let power = curved * maxImpulse
         applyShot(to: node, direction: CGVector(dx: cos(angle), dy: sin(angle)), power: power)
-        impactFeedback.impactOccurred(intensity: dist / maxDrag)
+        impactFeedback.impactOccurred(intensity: curved)
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
