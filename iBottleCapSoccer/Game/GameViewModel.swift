@@ -21,11 +21,9 @@ final class GameViewModel: ObservableObject {
     @Published var localOnlineTeam: Team = .home
 
     static let halfDuration = 15 * 60
-    /// Simplified adaptation of the official "1-3 actions per turn" rule (which distinguishes
-    /// dead-ball vs. open-play actions — a distinction this engine has no notion of, since it
-    /// doesn't track fouls/out-of-bounds). Every turn gets a fixed 2 actions: enough to
-    /// position a cap and then strike, without needing that extra bookkeeping.
-    static let actionsPerTurn = 2
+    /// One flick per turn, then it passes to the other team — simpler than the official
+    /// "1-3 actions" rule (tried as 2 actions, but reverted: it didn't feel right in practice).
+    static let actionsPerTurn = 1
 
     private var timerCancellable: AnyCancellable?
     private var isMenuPaused = false

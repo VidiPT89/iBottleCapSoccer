@@ -77,38 +77,14 @@ struct MainGameView: View {
     }
 
     private var turnBar: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(viewModel.currentTeam == .home ? Brand.orange : Color.gray)
-                    .frame(width: 9, height: 9)
-                Text(turnText)
-                    .font(.subheadline.bold())
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(Capsule().fill(Color.secondary.opacity(0.12)))
-
-            actionsIndicator
+        HStack(spacing: 8) {
+            Circle()
+                .fill(viewModel.currentTeam == .home ? Brand.orange : Color.gray)
+                .frame(width: 9, height: 9)
+            Text(turnText)
+                .font(.subheadline.bold())
         }
-    }
-
-    /// One dot per action in the turn, filled for actions still available — a quick visual
-    /// read of "how many touches do I have left" without needing to read a number.
-    private var actionsIndicator: some View {
-        HStack(spacing: 6) {
-            Text(localizer.t(.actionsLeft))
-                .font(.caption2)
-                .foregroundColor(.secondary)
-            HStack(spacing: 5) {
-                ForEach(0..<GameViewModel.actionsPerTurn, id: \.self) { i in
-                    Circle()
-                        .fill(i < viewModel.actionsLeft ? Brand.orange : Color.secondary.opacity(0.25))
-                        .frame(width: 8, height: 8)
-                }
-            }
-        }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Capsule().fill(Color.secondary.opacity(0.12)))
     }

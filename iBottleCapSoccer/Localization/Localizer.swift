@@ -46,7 +46,6 @@ final class Localizer: ObservableObject {
             .fulltime: "Fim de Jogo",
             .turnHome: "Vez da Equipa Casa",
             .turnAway: "Vez da Equipa Fora",
-            .actionsLeft: "Ações restantes:",
             .goalText: "GOLO!",
             .hintText: "Arrasta uma carica da tua equipa e solta para chutar. Chega ao meio-campo adversário para poderes rematar à baliza.",
             .restart: "Jogar Novamente",
@@ -58,7 +57,7 @@ final class Localizer: ObservableObject {
             .rulesDurationTitle: "Duração",
             .rulesDurationBody: "2 partes de 15 minutos, sem interrupções.",
             .rulesHowTitle: "Como jogar",
-            .rulesHowBody: "Arrasta uma carica da tua equipa e solta para a chutar na direção e força desejadas. Cada vez tens 2 ações — usa a primeira para te posicionares e a segunda para rematar, ou avança com as duas antes de passar a vez. Não é permitido tocar numa carica sem a deslocar de forma percetível.",
+            .rulesHowBody: "Arrasta uma carica da tua equipa e solta para a chutar na direção e força desejadas. Depois de cada jogada, passa a vez à equipa adversária. Não é permitido tocar numa carica sem a deslocar de forma percetível.",
             .rulesShootTitle: "Remate à baliza",
             .rulesShootBody: "Só podes rematar quando a tua carica está no meio-campo adversário — é obrigatório anunciar o remate.",
             .rulesSpecialTitle: "Regras especiais",
@@ -105,7 +104,6 @@ final class Localizer: ObservableObject {
             .fulltime: "Full Time",
             .turnHome: "Home Team's Turn",
             .turnAway: "Away Team's Turn",
-            .actionsLeft: "Actions left:",
             .goalText: "GOAL!",
             .hintText: "Drag a cap from your team and release to shoot. Reach the opponent's half to be able to shoot at goal.",
             .restart: "Play Again",
@@ -117,7 +115,7 @@ final class Localizer: ObservableObject {
             .rulesDurationTitle: "Duration",
             .rulesDurationBody: "2 halves of 15 minutes each, played without stoppages.",
             .rulesHowTitle: "How to play",
-            .rulesHowBody: "Drag a cap from your team and release to flick it in the desired direction and strength. Each turn gives you 2 actions — use the first to get into position and the second to strike, or push forward with both before passing the turn. A cap can't be touched without moving it noticeably.",
+            .rulesHowBody: "Drag a cap from your team and release to flick it in the desired direction and strength. After each move, the turn passes to the other team. A cap can't be touched without moving it noticeably.",
             .rulesShootTitle: "Shooting on goal",
             .rulesShootBody: "You can only shoot when your cap is in the opponent's half — the shot must be announced beforehand.",
             .rulesSpecialTitle: "Special rules",
@@ -158,7 +156,7 @@ final class Localizer: ObservableObject {
 enum LocKey: String {
     case appTitle, navRules, navNewGame, teamHome, teamAway
     case half1, half2, halftime, fulltime
-    case turnHome, turnAway, actionsLeft, goalText, hintText, restart
+    case turnHome, turnAway, goalText, hintText, restart
     case splashSkip, splashCredit
     case rulesTitle
     case rulesObjectiveTitle, rulesObjectiveBody
