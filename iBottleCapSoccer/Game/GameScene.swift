@@ -34,6 +34,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     var wasSimulating = false
     var awaitingReset = false
     private var allBodies: [SKPhysicsBody] = []
+    /// A body under this speed counts as "stopped" for turn purposes — doesn't need to reach
+    /// exactly zero, just slow enough that waiting any longer wouldn't visibly change anything.
+    private let stoppedSpeedThreshold: CGFloat = 5
+    /// Safety net: force the turn to end after this long even if something is still crawling
+    /// along a wall (e.g. a shallow-angle bounce that never quite drops below the threshold).
+    private let maxSimulationSeconds: TimeInterval = 3.5
+    private var simulationStartTime: TimeInterval?
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let goalFeedback = UINotificationFeedbackGenerator()
@@ -198,7 +205,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let body = SKPhysicsBody(circleOfRadius: radius)
         body.mass = isGK ? 0.15 : 0.275
-        body.linearDamping = 0.55
+        body.linearDamping = 0.95
         body.restitution = 0.65
         body.friction = 0.2
         body.allowsRotation = false
@@ -225,7 +232,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let body = SKPhysicsBody(circleOfRadius: ballRadius)
         body.mass = 0.06
-        body.linearDamping = 0.4
+        body.linearDamping = 0.7
         body.restitution = 0.78
         body.friction = 0.05
         body.allowsRotation = false
@@ -268,6 +275,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         allBodies = (homeCaps + awayCaps + [ball]).compactMap { $0.physicsBody }
         awaitingReset = false
         wasSimulating = false
+        simulationStartTime = nil
         viewModel?.isSimulating = false
         highlightActiveTeam()
     }
@@ -290,13 +298,17 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
     override func update(_ currentTime: TimeInterval) {
         guard !allBodies.isEmpty else { return }
-        let moving = allBodies.contains { hypot($0.velocity.dx, $0.velocity.dy) > 1.2 }
+        let stillMoving = allBodies.contains { hypot($0.velocity.dx, $0.velocity.dy) > stoppedSpeedThreshold }
+        let timedOut = simulationStartTime.map { currentTime - $0 > maxSimulationSeconds } ?? false
+        let moving = stillMoving && !timedOut
 
         if moving {
+            if !wasSimulating { simulationStartTime = currentTime }
             wasSimulating = true
             if viewModel?.isSimulating == false { viewModel?.isSimulating = true }
         } else if wasSimulating {
             wasSimulating = false
+            simulationStartTime = nil
             for b in allBodies { b.velocity = .zero }
             viewModel?.isSimulating = false
             guard !awaitingReset else { return }
