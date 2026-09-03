@@ -7,8 +7,8 @@
 ## ✨ Features
 
 - ✅ Realistic flick-based physics (friction, collisions, bounces) powered by SpriteKit
-- ✅ Turn-based two-player local matches, home vs away
-- ✅ Full match flow: kickoff, goals, half-time, full-time
+- ✅ Three game modes: local 1 vs 1, 1 vs Bot (3 difficulty levels), and online multiplayer via Game Center
+- ✅ Full match flow: kickoff, goals, half-time, full-time (online matches play to first-to-5-goals instead of a clock, since turn-based play doesn't fit a real-time timer)
 - ✅ Bilingual interface — Portuguese (PT-PT) and English, switchable in-app
 - ✅ Light, dark and system appearance modes
 - ✅ Animated splash intro on launch
@@ -21,6 +21,7 @@
 | Language    | Swift                  |
 | UI          | SwiftUI                |
 | Physics/2D  | SpriteKit              |
+| Online multiplayer | GameKit (`GKTurnBasedMatch`) |
 | Project     | Xcode (generated via [XcodeGen](https://github.com/yonaskolb/XcodeGen)) |
 
 ## 🚀 Quick Start
@@ -41,17 +42,20 @@ Then build and run (`Cmd+R`) on a simulator or device.
 
 > The project is defined in `project.yml`. If you change it, regenerate the `.xcodeproj` with [XcodeGen](https://github.com/yonaskolb/XcodeGen): `xcodegen generate`.
 
+> **Online multiplayer requires the Game Center capability to be enabled for the App ID** in the Apple Developer portal (and Game Center configured in App Store Connect), plus signing in with sandbox tester accounts on two devices to actually test a match — this repo ships the client-side integration (`GameCenterManager`, entitlements, turn sync) but that portal-side setup has to be done by whoever holds the Apple Developer account.
+
 ## 📖 Usage
 
-1. Watch the intro splash or tap **Skip** to jump straight into the match.
-2. Drag a cap from your own team and release to flick it toward the ball.
-3. Reach the opponent's half to be able to shoot on goal.
-4. First half, half-time break, second half — highest score wins.
-5. Use the top bar to switch language (PT/EN), cycle the appearance (system/light/dark), check the rules, or start a new game.
+1. Watch the intro splash or tap **Skip** to jump straight into the menu.
+2. Tap **Play** and choose a mode: **1 vs 1** (pass the device between two players), **1 vs Bot** (pick Easy/Medium/Hard), or **Online** (Game Center, turn-based).
+3. Drag a cap from your own team and release to flick it toward the ball.
+4. Reach the opponent's half to be able to shoot on goal.
+5. Local and bot matches play 2×15 minute halves; online matches play to first-to-5-goals with no clock.
+6. Use the gear menu to switch language (PT/EN), cycle the appearance (system/light/dark), or check the rules.
 
 ## 🧪 Testing
 
-Manual testing was performed in the iOS Simulator, covering drag-to-shoot input, goal detection, turn switching, timer flow, appearance switching and language switching.
+Manual testing was performed in the iOS Simulator, covering drag-to-shoot input, goal detection, turn switching, timer flow, appearance switching, language switching, and the bot's decision-making across all three difficulties. Game Center connectivity between two real devices has not been end-to-end tested — see the note above.
 
 ## 📄 License
 
