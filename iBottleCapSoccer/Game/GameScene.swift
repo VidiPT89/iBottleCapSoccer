@@ -1,5 +1,6 @@
 import SpriteKit
 import UIKit
+import QuartzCore
 
 final class GameScene: SKScene, SKPhysicsContactDelegate {
 
@@ -313,11 +314,12 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             viewModel?.isSimulating = false
             guard !awaitingReset else { return }
 
+            let turnPassed = viewModel?.turnEnded() ?? false
             if viewModel?.mode.isOnline == true {
-                viewModel?.turnEnded()
-                submitOnlineTurnIfNeeded()
+                // Only hand the turn to Game Center once this device's full turn (all its
+                // actions) is used up — mid-turn actions stay purely local.
+                if turnPassed { submitOnlineTurnIfNeeded() }
             } else {
-                viewModel?.turnEnded()
                 highlightActiveTeam()
                 scheduleBotTurnIfNeeded()
             }
@@ -419,6 +421,10 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         node.physicsBody?.applyImpulse(CGVector(dx: direction.dx * power, dy: direction.dy * power))
         viewModel?.isSimulating = true
         wasSimulating = true
+        // Set here (not just in `update`) so the safety timeout also covers the very first
+        // frame after a shot — `update`'s own start-time capture only fires on a moving->moving
+        // transition, which never happens for a shot that's already marked as simulating.
+        simulationStartTime = CACurrentMediaTime()
     }
 
     func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {

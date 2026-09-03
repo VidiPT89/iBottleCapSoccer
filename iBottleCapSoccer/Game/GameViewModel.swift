@@ -5,7 +5,7 @@ final class GameViewModel: ObservableObject {
     @Published var homeScore = 0
     @Published var awayScore = 0
     @Published var currentTeam: Team = .home
-    @Published var actionsLeft = 1
+    @Published var actionsLeft = GameViewModel.actionsPerTurn
     @Published var half: MatchHalf = .first
     @Published var timeLeft: Int = GameViewModel.halfDuration
     @Published var isPaused = false
@@ -21,6 +21,11 @@ final class GameViewModel: ObservableObject {
     @Published var localOnlineTeam: Team = .home
 
     static let halfDuration = 15 * 60
+    /// Simplified adaptation of the official "1-3 actions per turn" rule (which distinguishes
+    /// dead-ball vs. open-play actions — a distinction this engine has no notion of, since it
+    /// doesn't track fouls/out-of-bounds). Every turn gets a fixed 2 actions: enough to
+    /// position a cap and then strike, without needing that extra bookkeeping.
+    static let actionsPerTurn = 2
 
     private var timerCancellable: AnyCancellable?
     private var isMenuPaused = false
@@ -47,7 +52,7 @@ final class GameViewModel: ObservableObject {
         half = .first
         timeLeft = Self.halfDuration
         currentTeam = .home
-        actionsLeft = 1
+        actionsLeft = Self.actionsPerTurn
         isPaused = false
         isMenuPaused = false
         isFullTime = false
@@ -113,7 +118,7 @@ final class GameViewModel: ObservableObject {
         if team == .home { homeScore += 1 } else { awayScore += 1 }
         showGoalFlash = true
         currentTeam = team.opponent
-        actionsLeft = 1
+        actionsLeft = Self.actionsPerTurn
 
         if mode.isOnline, homeScore >= OnlineMatchState.targetScore || awayScore >= OnlineMatchState.targetScore {
             isFullTime = true
@@ -133,12 +138,16 @@ final class GameViewModel: ObservableObject {
         }
     }
 
-    func turnEnded() {
+    /// Consumes one action. Returns `true` when that was the last one and the turn passed
+    /// to the other team — callers that only care about turn *boundaries* (e.g. submitting
+    /// an online turn) should check this instead of assuming every action ends the turn.
+    @discardableResult
+    func turnEnded() -> Bool {
         actionsLeft -= 1
-        if actionsLeft <= 0 {
-            currentTeam = currentTeam.opponent
-            actionsLeft = 1
-        }
+        guard actionsLeft <= 0 else { return false }
+        currentTeam = currentTeam.opponent
+        actionsLeft = Self.actionsPerTurn
+        return true
     }
 
     // MARK: - Online matches
@@ -151,7 +160,7 @@ final class GameViewModel: ObservableObject {
         homeScore = state.homeScore
         awayScore = state.awayScore
         currentTeam = Team(rawValue: state.currentTeam) ?? .home
-        actionsLeft = 1
+        actionsLeft = Self.actionsPerTurn
         isPaused = false
         isMenuPaused = false
         isFullTime = state.isMatchOver
@@ -168,7 +177,7 @@ final class GameViewModel: ObservableObject {
         homeScore = 0
         awayScore = 0
         currentTeam = .home
-        actionsLeft = 1
+        actionsLeft = Self.actionsPerTurn
         isPaused = false
         isMenuPaused = false
         isFullTime = false
