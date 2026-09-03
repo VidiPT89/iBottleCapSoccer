@@ -60,7 +60,7 @@ struct MainGameView: View {
             if viewModel.hasStarted {
                 viewModel.resume()
             } else {
-                viewModel.startNewMatch(mode: viewModel.mode)
+                viewModel.startNewMatch(mode: viewModel.mode, goalTarget: viewModel.goalTarget)
             }
         }
         .onDisappear {
@@ -73,7 +73,7 @@ struct MainGameView: View {
         .sheet(isPresented: $showModePicker) {
             // Online isn't offered here — starting a fresh match mid-game would require
             // leaving to the menu for Game Center matchmaking, so only Local/Bot restart in place.
-            GameModeSheet(onStart: { mode in viewModel.startNewMatch(mode: mode) })
+            GameModeSheet(onStart: { mode, goalTarget in viewModel.startNewMatch(mode: mode, goalTarget: goalTarget) })
                 .preferredColorScheme(theme.theme.colorScheme)
         }
     }
@@ -158,7 +158,7 @@ struct MainGameView: View {
                 Button(localizer.t(.menuBackToMenu)) { dismiss() }
                     .buttonStyle(PrimaryChipButtonStyle())
             } else {
-                Button(localizer.t(.restart)) { viewModel.startNewMatch(mode: viewModel.mode) }
+                Button(localizer.t(.restart)) { viewModel.startNewMatch(mode: viewModel.mode, goalTarget: viewModel.goalTarget) }
                     .buttonStyle(PrimaryChipButtonStyle())
             }
         }

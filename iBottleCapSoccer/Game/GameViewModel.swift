@@ -14,6 +14,10 @@ final class GameViewModel: ObservableObject {
     @Published var isSimulating = false
     @Published var hasStarted = false
     @Published var mode: GameMode = .local
+    /// Optional early-finish goal target for Local/Bot matches (e.g. "first to 5") — the clock
+    /// stays the hard cap either way. `nil` means "no limit, play the full 2x15min". Online
+    /// always uses its own fixed `OnlineMatchState.targetScore`, independent of this.
+    @Published var goalTarget: Int?
     /// Transient banner text for a foul or an earned free kick — mirrors `showGoalFlash`.
     @Published var foulFlash: String?
     private var extraTurnOwed: Team?
@@ -50,8 +54,9 @@ final class GameViewModel: ObservableObject {
 
     // MARK: - Local / bot matches
 
-    func startNewMatch(mode: GameMode = .local) {
+    func startNewMatch(mode: GameMode = .local, goalTarget: Int? = nil) {
         self.mode = mode
+        self.goalTarget = goalTarget
         homeScore = 0
         awayScore = 0
         half = .first
@@ -152,6 +157,12 @@ final class GameViewModel: ObservableObject {
 
         if mode.isOnline, homeScore >= OnlineMatchState.targetScore || awayScore >= OnlineMatchState.targetScore {
             isFullTime = true
+            recordMatchResultIfNeeded()
+        } else if !mode.isOnline, let goalTarget, homeScore >= goalTarget || awayScore >= goalTarget {
+            isFullTime = true
+            timerCancellable?.cancel()
+            SoundManager.shared.play(.whistle)
+            SoundManager.shared.stopAmbientLoop()
             recordMatchResultIfNeeded()
         }
 

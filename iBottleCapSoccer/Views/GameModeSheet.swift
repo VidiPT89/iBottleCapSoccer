@@ -7,14 +7,20 @@ struct GameModeSheet: View {
     @EnvironmentObject private var localizer: Localizer
     @Environment(\.dismiss) private var dismiss
 
-    var onStart: (GameMode) -> Void
+    var onStart: (GameMode, Int?) -> Void
     var onPlayOnline: (() -> Void)?
 
     @State private var pickingDifficulty = false
+    /// Optional early-finish target ("first to N") for Local/Bot — `nil` plays the full clock.
+    @State private var goalTarget: Int? = nil
+    private static let goalTargetOptions: [Int?] = [nil, 3, 5, 10]
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 14) {
+                if !pickingDifficulty {
+                    goalTargetPicker
+                }
                 if pickingDifficulty {
                     ForEach(BotDifficulty.allCases) { difficulty in
                         modeRow(
@@ -22,13 +28,13 @@ struct GameModeSheet: View {
                             subtitle: nil,
                             icon: difficultyIcon(difficulty)
                         ) {
-                            onStart(.bot(difficulty))
+                            onStart(.bot(difficulty), goalTarget)
                             dismiss()
                         }
                     }
                 } else {
                     modeRow(title: localizer.t(.mode1v1), subtitle: localizer.t(.mode1v1Subtitle), icon: "person.2.fill") {
-                        onStart(.local)
+                        onStart(.local, goalTarget)
                         dismiss()
                     }
                     modeRow(title: localizer.t(.modeBot), subtitle: localizer.t(.modeBotSubtitle), icon: "cpu.fill") {
@@ -59,6 +65,20 @@ struct GameModeSheet: View {
             }
         }
         .presentationDetents([.medium])
+    }
+
+    private var goalTargetPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localizer.t(.goalTargetTitle))
+                .font(.caption.bold())
+                .foregroundColor(.secondary)
+            Picker(localizer.t(.goalTargetTitle), selection: $goalTarget) {
+                ForEach(Self.goalTargetOptions, id: \.self) { option in
+                    Text(option.map { "\($0)" } ?? localizer.t(.goalTargetNone)).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
     }
 
     private func difficultyLabel(_ d: BotDifficulty) -> String {

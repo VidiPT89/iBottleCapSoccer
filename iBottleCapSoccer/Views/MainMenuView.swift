@@ -65,8 +65,8 @@ struct MainMenuView: View {
         }
         .sheet(isPresented: $showModePicker) {
             GameModeSheet(
-                onStart: { mode in
-                    viewModel.startNewMatch(mode: mode)
+                onStart: { mode, goalTarget in
+                    viewModel.startNewMatch(mode: mode, goalTarget: goalTarget)
                     onPlay()
                 },
                 onPlayOnline: onPlayOnline
@@ -178,7 +178,7 @@ struct MainMenuView: View {
             Text("\(viewModel.homeScore) — \(viewModel.awayScore)")
                 .font(.caption.bold().monospacedDigit())
             Text("·").foregroundColor(.white.opacity(0.4))
-            Text(viewModel.mode.isOnline ? localizer.t(.onlineFirstTo5) : localizer.t(viewModel.half == .first ? .half1 : .half2))
+            Text(resumeChipDetail)
                 .font(.caption2.bold())
         }
         .foregroundColor(.white.opacity(0.85))
@@ -187,6 +187,12 @@ struct MainMenuView: View {
         .background(Capsule().fill(Color.white.opacity(0.08)))
         .overlay(Capsule().stroke(Color.white.opacity(0.15)))
         .padding(.top, 14)
+    }
+
+    private var resumeChipDetail: String {
+        if viewModel.mode.isOnline { return localizer.t(.onlineFirstTo5) }
+        if let target = viewModel.goalTarget { return "\(localizer.t(.goalTargetTitle)): \(target)" }
+        return localizer.t(viewModel.half == .first ? .half1 : .half2)
     }
 
     private var howToPlayLine: some View {
