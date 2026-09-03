@@ -4,60 +4,53 @@ import SpriteKit
 struct MainGameView: View {
     @EnvironmentObject private var localizer: Localizer
     @EnvironmentObject private var theme: ThemeManager
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: GameViewModel
     var scene: GameScene
     @State private var showRules = false
-
-    var onExit: () -> Void
+    @State private var showModePicker = false
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 14) {
-                ScoreboardView(viewModel: viewModel)
-                turnBar
-                fieldArea
-                Text(localizer.t(.hintText))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                Spacer(minLength: 0)
-            }
-            .padding(.top, 10)
-            .background(Color(uiColor: .systemBackground).ignoresSafeArea())
-            .navigationTitle(localizer.t(.appTitle))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onExit) {
-                        Image(systemName: "chevron.left")
+        VStack(spacing: 14) {
+            ScoreboardView(viewModel: viewModel)
+            turnBar
+            fieldArea
+            Text(localizer.t(.hintText))
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 10)
+        .background(Color(uiColor: .systemBackground).ignoresSafeArea())
+        .navigationTitle(localizer.t(.appTitle))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(localizer.t(.navRules)) { showRules = true }
+                    if !viewModel.mode.isOnline {
+                        Button(localizer.t(.navNewGame)) { showModePicker = true }
                     }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button(localizer.t(.navRules)) { showRules = true }
-                        if !viewModel.mode.isOnline {
-                            Button(localizer.t(.navNewGame)) { viewModel.startNewMatch(mode: viewModel.mode) }
-                        }
-                        Divider()
-                        Picker(selection: $localizer.language) {
-                            Text("Português").tag(AppLanguage.pt)
-                            Text("English").tag(AppLanguage.en)
-                        } label: {
-                            Label(localizer.language == .pt ? "Português" : "English", systemImage: "globe")
-                        }
-                        .pickerStyle(.inline)
-                        Picker(selection: $theme.theme) {
-                            Label("System", systemImage: AppTheme.system.icon).tag(AppTheme.system)
-                            Label("Light", systemImage: AppTheme.light.icon).tag(AppTheme.light)
-                            Label("Dark", systemImage: AppTheme.dark.icon).tag(AppTheme.dark)
-                        } label: {
-                            Label("Theme", systemImage: theme.theme.icon)
-                        }
-                        .pickerStyle(.inline)
+                    Divider()
+                    Picker(selection: $localizer.language) {
+                        Text("Português").tag(AppLanguage.pt)
+                        Text("English").tag(AppLanguage.en)
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Label(localizer.language == .pt ? "Português" : "English", systemImage: "globe")
                     }
+                    .pickerStyle(.inline)
+                    Picker(selection: $theme.theme) {
+                        Label("System", systemImage: AppTheme.system.icon).tag(AppTheme.system)
+                        Label("Light", systemImage: AppTheme.light.icon).tag(AppTheme.light)
+                        Label("Dark", systemImage: AppTheme.dark.icon).tag(AppTheme.dark)
+                    } label: {
+                        Label("Theme", systemImage: theme.theme.icon)
+                    }
+                    .pickerStyle(.inline)
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
@@ -73,6 +66,12 @@ struct MainGameView: View {
         }
         .sheet(isPresented: $showRules) {
             RulesView()
+                .preferredColorScheme(theme.theme.colorScheme)
+        }
+        .sheet(isPresented: $showModePicker) {
+            // Online isn't offered here — starting a fresh match mid-game would require
+            // leaving to the menu for Game Center matchmaking, so only Local/Bot restart in place.
+            GameModeSheet(onStart: { mode in viewModel.startNewMatch(mode: mode) })
                 .preferredColorScheme(theme.theme.colorScheme)
         }
     }
@@ -133,7 +132,7 @@ struct MainGameView: View {
                 .font(.system(size: 30, weight: .black))
                 .foregroundColor(Brand.orange)
             if viewModel.mode.isOnline {
-                Button(localizer.t(.menuBackToMenu), action: onExit)
+                Button(localizer.t(.menuBackToMenu)) { dismiss() }
                     .buttonStyle(PrimaryChipButtonStyle())
             } else {
                 Button(localizer.t(.restart)) { viewModel.startNewMatch(mode: viewModel.mode) }

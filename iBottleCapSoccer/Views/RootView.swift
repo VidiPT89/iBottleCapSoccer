@@ -3,12 +3,12 @@ import SpriteKit
 
 enum AppScreen {
     case splash
-    case menu
-    case game
+    case app
 }
 
 struct RootView: View {
     @State private var screen: AppScreen = .splash
+    @State private var showGame = false
     @StateObject private var viewModel = GameViewModel()
     @ObservedObject private var gcManager = GameCenterManager.shared
     @State private var scene: GameScene = {
@@ -22,20 +22,23 @@ struct RootView: View {
             switch screen {
             case .splash:
                 SplashView {
-                    withAnimation(.easeOut(duration: 0.5)) { screen = .menu }
+                    withAnimation(.easeOut(duration: 0.5)) { screen = .app }
                 }
                 .transition(.opacity)
                 .zIndex(1)
-            case .menu:
-                MainMenuView(
-                    viewModel: viewModel,
-                    onPlay: { withAnimation(.easeOut(duration: 0.35)) { screen = .game } },
-                    onPlayOnline: { gcManager.presentMatchmaker() }
-                )
-                .transition(.opacity)
-            case .game:
-                MainGameView(viewModel: viewModel, scene: scene) {
-                    withAnimation(.easeOut(duration: 0.35)) { screen = .menu }
+            case .app:
+                // Real push navigation (not a manual view switch) so the system back button
+                // and the standard edge-swipe-to-go-back gesture both work out of the box.
+                NavigationStack {
+                    MainMenuView(
+                        viewModel: viewModel,
+                        onPlay: { showGame = true },
+                        onPlayOnline: { gcManager.presentMatchmaker() }
+                    )
+                    .toolbar(.hidden, for: .navigationBar)
+                    .navigationDestination(isPresented: $showGame) {
+                        MainGameView(viewModel: viewModel, scene: scene)
+                    }
                 }
                 .transition(.opacity)
             }
@@ -54,7 +57,7 @@ struct RootView: View {
                 viewModel.seedNewOnlineMatch(localTeam: gcManager.pendingLocalTeam)
             }
             gcManager.clearIncoming()
-            withAnimation(.easeOut(duration: 0.35)) { screen = .game }
+            showGame = true
         }
     }
 }

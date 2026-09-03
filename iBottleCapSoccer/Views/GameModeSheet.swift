@@ -8,7 +8,7 @@ struct GameModeSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     var onStart: (GameMode) -> Void
-    var onPlayOnline: () -> Void
+    var onPlayOnline: (() -> Void)?
 
     @State private var pickingDifficulty = false
 
@@ -34,9 +34,11 @@ struct GameModeSheet: View {
                     modeRow(title: localizer.t(.modeBot), subtitle: localizer.t(.modeBotSubtitle), icon: "cpu.fill") {
                         withAnimation { pickingDifficulty = true }
                     }
-                    modeRow(title: localizer.t(.modeOnline), subtitle: localizer.t(.modeOnlineSubtitle), icon: "network") {
-                        dismiss()
-                        onPlayOnline()
+                    if let onPlayOnline {
+                        modeRow(title: localizer.t(.modeOnline), subtitle: localizer.t(.modeOnlineSubtitle), icon: "network") {
+                            dismiss()
+                            onPlayOnline()
+                        }
                     }
                 }
                 Spacer()
