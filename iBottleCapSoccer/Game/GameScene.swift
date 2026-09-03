@@ -25,7 +25,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     var ball: SKShapeNode!
     var homeCaps: [SKShapeNode] = []
     var awayCaps: [SKShapeNode] = []
-    private var fieldLayer: SKNode!
+    var fieldLayer: SKNode!
 
     private var dragNode: SKShapeNode?
     private var dragStart: CGPoint = .zero
@@ -94,6 +94,12 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         circle.fillColor = .clear
         fieldLayer.addChild(circle)
 
+        let centerDot = SKShapeNode(circleOfRadius: 6)
+        centerDot.position = CGPoint(x: Self.fieldWidth / 2, y: Self.fieldHeight / 2)
+        centerDot.fillColor = SKColor.white.withAlphaComponent(0.85)
+        centerDot.strokeColor = .clear
+        fieldLayer.addChild(centerDot)
+
         let boxW: CGFloat = 420, boxH: CGFloat = 200
         for y in [wall, Self.fieldHeight - wall - boxH] {
             let box = SKShapeNode(rect: CGRect(x: Self.fieldWidth / 2 - boxW / 2, y: y, width: boxW, height: boxH))
@@ -106,6 +112,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         buildGoal(atBottom: true)
         buildGoal(atBottom: false)
         buildOuterWalls(pitch: pitch)
+        addFieldDetails(pitch: pitch, boxH: boxH)
     }
 
     private func buildGoal(atBottom: Bool) {
@@ -114,10 +121,11 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let rect = CGRect(x: gx0, y: y, width: goalWidth, height: goalDepth)
 
         let net = SKShapeNode(rect: rect)
-        net.fillColor = SKColor.white.withAlphaComponent(0.16)
+        net.fillColor = SKColor.white.withAlphaComponent(0.12)
         net.strokeColor = SKColor.white.withAlphaComponent(0.7)
         net.lineWidth = 3
         fieldLayer.addChild(net)
+        addNetMesh(in: rect)
 
         let sensor = SKNode()
         sensor.position = CGPoint(x: rect.midX, y: rect.midY)
@@ -158,15 +166,20 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let node = SKShapeNode(circleOfRadius: radius)
         node.position = point
         node.name = "\(team.rawValue)-\(isGK ? "gk" : "\(index)")"
-        node.fillColor = team == .home ? SKColor(red: 1, green: 0.478, blue: 0.102, alpha: 1) : SKColor(red: 0.17, green: 0.17, blue: 0.19, alpha: 1)
+        let base: SKColor = team == .home ? SKColor(red: 0.83, green: 0.38, blue: 0.02, alpha: 1) : SKColor(red: 0.1, green: 0.1, blue: 0.12, alpha: 1)
+        let highlight: SKColor = team == .home ? SKColor(red: 1, green: 0.72, blue: 0.42, alpha: 1) : SKColor(red: 0.42, green: 0.42, blue: 0.46, alpha: 1)
+        node.fillColor = .white
+        node.fillTexture = glossyTexture(base: base, highlight: highlight, diameter: radius * 2, key: "cap-\(team.rawValue)-\(Int(radius))")
         node.strokeColor = SKColor.black.withAlphaComponent(0.35)
         node.lineWidth = 2
         node.zPosition = 5
+        node.addChild(shadowNode(diameter: radius * 2.4))
 
         if isGK {
             let dot = SKShapeNode(circleOfRadius: radius * 0.38)
             dot.fillColor = .white
             dot.strokeColor = .clear
+            dot.zPosition = 0.1
             node.addChild(dot)
         }
 
@@ -190,10 +203,12 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         let node = SKShapeNode(circleOfRadius: ballRadius)
         node.position = point
         node.name = "ball"
-        node.fillColor = SKColor(white: 0.97, alpha: 1)
+        node.fillColor = .white
+        node.fillTexture = glossyTexture(base: SKColor(white: 0.93, alpha: 1), highlight: .white, diameter: ballRadius * 2, key: "ball-\(Int(ballRadius))")
         node.strokeColor = SKColor.black.withAlphaComponent(0.2)
         node.lineWidth = 1.5
         node.zPosition = 6
+        node.addChild(shadowNode(diameter: ballRadius * 2.6))
 
         let body = SKPhysicsBody(circleOfRadius: ballRadius)
         body.mass = 0.06
