@@ -10,6 +10,7 @@ enum AppScreen {
 struct RootView: View {
     @State private var screen: AppScreen = .splash
     @StateObject private var viewModel = GameViewModel()
+    @ObservedObject private var gcManager = GameCenterManager.shared
     @State private var scene: GameScene = {
         let s = GameScene(size: CGSize(width: GameScene.fieldWidth, height: GameScene.fieldHeight))
         s.scaleMode = .aspectFit
@@ -26,9 +27,11 @@ struct RootView: View {
                 .transition(.opacity)
                 .zIndex(1)
             case .menu:
-                MainMenuView(viewModel: viewModel) {
-                    withAnimation(.easeOut(duration: 0.35)) { screen = .game }
-                }
+                MainMenuView(
+                    viewModel: viewModel,
+                    onPlay: { withAnimation(.easeOut(duration: 0.35)) { screen = .game } },
+                    onPlayOnline: { gcManager.presentMatchmaker() }
+                )
                 .transition(.opacity)
             case .game:
                 MainGameView(viewModel: viewModel, scene: scene) {
@@ -37,9 +40,21 @@ struct RootView: View {
                 .transition(.opacity)
             }
         }
+        .background(GameKitViewControllerPresenter(manager: gcManager))
         .onAppear {
             scene.viewModel = viewModel
             viewModel.scene = scene
+            scene.prepareIfNeeded()
+        }
+        .onChange(of: gcManager.incomingUpdate) { newValue in
+            guard newValue != nil else { return }
+            if let state = gcManager.pendingState {
+                viewModel.applyOnlineState(state, localTeam: gcManager.pendingLocalTeam)
+            } else {
+                viewModel.seedNewOnlineMatch(localTeam: gcManager.pendingLocalTeam)
+            }
+            gcManager.clearIncoming()
+            withAnimation(.easeOut(duration: 0.35)) { screen = .game }
         }
     }
 }

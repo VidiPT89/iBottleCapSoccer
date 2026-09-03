@@ -74,6 +74,24 @@ final class Localizer: ObservableObject {
             .menuStep1: "Arrasta",
             .menuStep2: "Solta",
             .menuStep3: "Marca",
+            .modePickerTitle: "Escolhe o modo de jogo",
+            .mode1v1: "1 vs 1 (Local)",
+            .mode1v1Subtitle: "Dois jogadores no mesmo aparelho",
+            .modeBot: "1 vs Bot",
+            .modeBotSubtitle: "Joga contra o computador",
+            .modeOnline: "Online",
+            .modeOnlineSubtitle: "Game Center, por turnos",
+            .botDifficultyTitle: "Escolhe a dificuldade",
+            .botEasy: "Fácil",
+            .botMedium: "Médio",
+            .botHard: "Difícil",
+            .cancel: "Cancelar",
+            .back: "Voltar",
+            .onlineFirstTo5: "Primeiro a 5 golos",
+            .onlineWaitingSignIn: "A entrar no Game Center…",
+            .onlineOpponentTurn: "Vez do adversário",
+            .onlineYourTurn: "A tua vez",
+            .botThinking: "O bot está a jogar…",
         ],
         .en: [
             .appTitle: "Bottle Cap Soccer",
@@ -115,6 +133,24 @@ final class Localizer: ObservableObject {
             .menuStep1: "Drag",
             .menuStep2: "Release",
             .menuStep3: "Score",
+            .modePickerTitle: "Choose a game mode",
+            .mode1v1: "1 vs 1 (Local)",
+            .mode1v1Subtitle: "Two players, same device",
+            .modeBot: "1 vs Bot",
+            .modeBotSubtitle: "Play against the computer",
+            .modeOnline: "Online",
+            .modeOnlineSubtitle: "Game Center, turn-based",
+            .botDifficultyTitle: "Choose a difficulty",
+            .botEasy: "Easy",
+            .botMedium: "Medium",
+            .botHard: "Hard",
+            .cancel: "Cancel",
+            .back: "Back",
+            .onlineFirstTo5: "First to 5 goals",
+            .onlineWaitingSignIn: "Signing in to Game Center…",
+            .onlineOpponentTurn: "Opponent's turn",
+            .onlineYourTurn: "Your turn",
+            .botThinking: "Bot is playing…",
         ],
     ]
 }
@@ -134,4 +170,8 @@ enum LocKey: String {
     case close
     case menuSubtitle, menuPlay, menuContinue, menuRules, menuBackToMenu
     case menuStep1, menuStep2, menuStep3
+    case modePickerTitle, mode1v1, mode1v1Subtitle, modeBot, modeBotSubtitle, modeOnline, modeOnlineSubtitle
+    case botDifficultyTitle, botEasy, botMedium, botHard
+    case cancel, back
+    case onlineFirstTo5, onlineWaitingSignIn, onlineOpponentTurn, onlineYourTurn, botThinking
 }

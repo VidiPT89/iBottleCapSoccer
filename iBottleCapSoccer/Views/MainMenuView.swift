@@ -5,9 +5,11 @@ struct MainMenuView: View {
     @EnvironmentObject private var theme: ThemeManager
     @ObservedObject var viewModel: GameViewModel
     @State private var showRules = false
+    @State private var showModePicker = false
     @State private var badgeFloat = false
 
     var onPlay: () -> Void
+    var onPlayOnline: () -> Void
 
     private var isResuming: Bool { viewModel.hasStarted && !viewModel.isFullTime }
 
@@ -55,6 +57,16 @@ struct MainMenuView: View {
         .sheet(isPresented: $showRules) {
             RulesView()
                 .preferredColorScheme(theme.theme.colorScheme)
+        }
+        .sheet(isPresented: $showModePicker) {
+            GameModeSheet(
+                onStart: { mode in
+                    viewModel.startNewMatch(mode: mode)
+                    onPlay()
+                },
+                onPlayOnline: onPlayOnline
+            )
+            .preferredColorScheme(theme.theme.colorScheme)
         }
     }
 
@@ -166,7 +178,9 @@ struct MainMenuView: View {
 
     private var actionButtons: some View {
         VStack(spacing: 12) {
-            Button(action: onPlay) {
+            Button {
+                if isResuming { onPlay() } else { showModePicker = true }
+            } label: {
                 Text(localizer.t(isResuming ? .menuContinue : .menuPlay))
                     .font(.headline)
                     .frame(maxWidth: .infinity)

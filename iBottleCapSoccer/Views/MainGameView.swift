@@ -36,7 +36,9 @@ struct MainGameView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button(localizer.t(.navRules)) { showRules = true }
-                        Button(localizer.t(.navNewGame)) { viewModel.startNewMatch() }
+                        if !viewModel.mode.isOnline {
+                            Button(localizer.t(.navNewGame)) { viewModel.startNewMatch(mode: viewModel.mode) }
+                        }
                         Divider()
                         Picker(selection: $localizer.language) {
                             Text("Português").tag(AppLanguage.pt)
@@ -63,7 +65,7 @@ struct MainGameView: View {
             if viewModel.hasStarted {
                 viewModel.resume()
             } else {
-                viewModel.startNewMatch()
+                viewModel.startNewMatch(mode: viewModel.mode)
             }
         }
         .onDisappear {
@@ -80,12 +82,22 @@ struct MainGameView: View {
             Circle()
                 .fill(viewModel.currentTeam == .home ? Brand.orange : Color.gray)
                 .frame(width: 9, height: 9)
-            Text(localizer.t(viewModel.currentTeam == .home ? .turnHome : .turnAway))
+            Text(turnText)
                 .font(.subheadline.bold())
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Capsule().fill(Color.secondary.opacity(0.12)))
+    }
+
+    private var turnText: String {
+        if viewModel.mode.isOnline {
+            return localizer.t(viewModel.isMyTurn ? .onlineYourTurn : .onlineOpponentTurn)
+        }
+        if case .bot = viewModel.mode, viewModel.currentTeam == viewModel.botTeam {
+            return localizer.t(.botThinking)
+        }
+        return localizer.t(viewModel.currentTeam == .home ? .turnHome : .turnAway)
     }
 
     private var fieldArea: some View {
@@ -120,8 +132,13 @@ struct MainGameView: View {
             Text("\(viewModel.homeScore) — \(viewModel.awayScore)")
                 .font(.system(size: 30, weight: .black))
                 .foregroundColor(Brand.orange)
-            Button(localizer.t(.restart)) { viewModel.startNewMatch() }
-                .buttonStyle(PrimaryChipButtonStyle())
+            if viewModel.mode.isOnline {
+                Button(localizer.t(.menuBackToMenu), action: onExit)
+                    .buttonStyle(PrimaryChipButtonStyle())
+            } else {
+                Button(localizer.t(.restart)) { viewModel.startNewMatch(mode: viewModel.mode) }
+                    .buttonStyle(PrimaryChipButtonStyle())
+            }
         }
         .padding(28)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))

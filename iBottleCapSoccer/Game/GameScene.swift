@@ -6,28 +6,28 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: Layout constants (points, matches Field cm ratio 110x170)
     static let fieldWidth: CGFloat = 1000
     static let fieldHeight: CGFloat = 1600
-    private let wall: CGFloat = 46
-    private let goalWidth: CGFloat = 190
+    let wall: CGFloat = 46
+    let goalWidth: CGFloat = 190
     private let goalDepth: CGFloat = 30
-    private let capRadius: CGFloat = 32
+    let capRadius: CGFloat = 32
     private let gkRadius: CGFloat = 34
     private let ballRadius: CGFloat = 20
     private let maxDrag: CGFloat = 220
-    private let maxImpulse: CGFloat = 130
+    let maxImpulse: CGFloat = 130
 
     weak var viewModel: GameViewModel?
 
-    private var ball: SKShapeNode!
-    private var homeCaps: [SKShapeNode] = []
-    private var awayCaps: [SKShapeNode] = []
+    var ball: SKShapeNode!
+    var homeCaps: [SKShapeNode] = []
+    var awayCaps: [SKShapeNode] = []
     private var fieldLayer: SKNode!
 
     private var dragNode: SKShapeNode?
     private var dragStart: CGPoint = .zero
     private var aimLine: SKShapeNode?
 
-    private var wasSimulating = false
-    private var awaitingReset = false
+    var wasSimulating = false
+    var awaitingReset = false
     private var allBodies: [SKPhysicsBody] = []
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
@@ -36,6 +36,14 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         scaleMode = .aspectFit
         backgroundColor = SKColor(red: 0.05, green: 0.05, blue: 0.06, alpha: 1)
+        prepareIfNeeded()
+    }
+
+    /// Builds the field and kicks off, if that hasn't happened yet. Safe to call before the
+    /// scene is ever presented in a `SpriteView` — needed so an online match can be seeded
+    /// (and its initial state sent to Game Center) before the player navigates to the game screen.
+    func prepareIfNeeded() {
+        guard fieldLayer == nil else { return }
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = .zero
         buildField()
@@ -226,7 +234,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         highlightActiveTeam()
     }
 
-    private func highlightActiveTeam() {
+    func highlightActiveTeam() {
         for cap in homeCaps + awayCaps {
             cap.removeAction(forKey: "highlight")
             cap.strokeColor = SKColor.black.withAlphaComponent(0.35)
@@ -253,9 +261,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             wasSimulating = false
             for b in allBodies { b.velocity = .zero }
             viewModel?.isSimulating = false
-            if !awaitingReset {
+            guard !awaitingReset else { return }
+
+            if viewModel?.mode.isOnline == true {
+                viewModel?.turnEnded()
+                submitOnlineTurnIfNeeded()
+            } else {
                 viewModel?.turnEnded()
                 highlightActiveTeam()
+                scheduleBotTurnIfNeeded()
             }
         }
     }
@@ -279,7 +293,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Touch input (drag to shoot)
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let vm = viewModel, !vm.isSimulating, !vm.isPaused, !vm.isFullTime, let touch = touches.first else { return }
+        guard let vm = viewModel, !vm.isSimulating, !vm.isPaused, !vm.isFullTime, vm.isMyTurn, let touch = touches.first else { return }
+        if case .bot = vm.mode, vm.currentTeam == vm.botTeam { return }
         let point = touch.location(in: self)
         let ownCaps = vm.currentTeam == .home ? homeCaps : awayCaps
         guard let hit = ownCaps.min(by: { distance($0.position, point) < distance($1.position, point) }),
@@ -320,10 +335,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         guard dist > 8 else { return }
         let angle = atan2(dy, dx)
         let power = (dist / maxDrag) * maxImpulse
-        node.physicsBody?.velocity = .zero
-        node.physicsBody?.applyImpulse(CGVector(dx: cos(angle) * power, dy: sin(angle) * power))
-        viewModel?.isSimulating = true
-        wasSimulating = true
+        applyShot(to: node, direction: CGVector(dx: cos(angle), dy: sin(angle)), power: power)
         impactFeedback.impactOccurred(intensity: dist / maxDrag)
     }
 
@@ -333,7 +345,15 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         aimLine = nil
     }
 
-    private func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
+    /// Shared by human drag-release and the bot: launches `node` in `direction` (unit vector) with `power`.
+    func applyShot(to node: SKShapeNode, direction: CGVector, power: CGFloat) {
+        node.physicsBody?.velocity = .zero
+        node.physicsBody?.applyImpulse(CGVector(dx: direction.dx * power, dy: direction.dy * power))
+        viewModel?.isSimulating = true
+        wasSimulating = true
+    }
+
+    func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
         hypot(a.x - b.x, a.y - b.y)
     }
 }

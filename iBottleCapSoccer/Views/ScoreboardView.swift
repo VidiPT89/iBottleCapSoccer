@@ -18,13 +18,20 @@ struct ScoreboardView: View {
                 teamChip(name: localizer.t(.teamAway), color: .primary, alignLeading: false)
             }
             HStack(spacing: 10) {
-                Text(localizer.t(viewModel.half == .first ? .half1 : .half2))
-                    .font(.caption2.bold())
-                    .padding(.horizontal, 10).padding(.vertical, 3)
-                    .background(Capsule().fill(Color.secondary.opacity(0.12)))
-                Text(viewModel.clockText)
-                    .font(.system(.subheadline, design: .monospaced).bold())
-                    .foregroundColor(Brand.orange)
+                if viewModel.mode.isOnline {
+                    Text(localizer.t(.onlineFirstTo5))
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 10).padding(.vertical, 3)
+                        .background(Capsule().fill(Color.secondary.opacity(0.12)))
+                } else {
+                    Text(localizer.t(viewModel.half == .first ? .half1 : .half2))
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 10).padding(.vertical, 3)
+                        .background(Capsule().fill(Color.secondary.opacity(0.12)))
+                    Text(viewModel.clockText)
+                        .font(.system(.subheadline, design: .monospaced).bold())
+                        .foregroundColor(Brand.orange)
+                }
             }
         }
         .padding(14)

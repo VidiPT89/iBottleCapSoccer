@@ -9,43 +9,80 @@
 /* Begin PBXBuildFile section */
 		0F7A9422E8C3E6550364AB1F /* ScoreboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415A169995D2DF6CAA7863D7 /* ScoreboardView.swift */; };
 		0FAADD404EE1723251ED0A35 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05A63D2B83C75EE0CDBF73F /* ThemeManager.swift */; };
+		1B6FF88D76CBD5DAD19BB8DB /* GameScene+Bot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934B65460EA6AA8360D3BED1 /* GameScene+Bot.swift */; };
 		21B64FF9EAE9CD28CAD11BD0 /* MainMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */; };
+		23B2F20DADF5CA9BBB130831 /* OnlineMatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0F4E77540002B6F1C852A8 /* OnlineMatchState.swift */; };
+		2CF6F6104A80A855009AFD5B /* GameCenterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63461886E17D03E0AA133735 /* GameCenterManager.swift */; };
 		329B8BE56BA0C7236E26BE56 /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EACAF882BDBF001E05E5F515 /* GameViewModel.swift */; };
 		3CE8BF7CF34490A574FD43A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F688E3A9030F9E0ACEB5575 /* Assets.xcassets */; };
 		3E3B4082C41A80B9BF817657 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C26EE02C7C0D007449C768 /* RootView.swift */; };
+		5EA77B4B367215A23307036A /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0E12626E29C193AABDBBB05 /* GameKit.framework */; };
 		68F93E60F9C3C08117940276 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F6A37A9C855DE698C1A3E1 /* SplashView.swift */; };
 		6E3B9EB88A36BC29810CAB52 /* Localizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970B819D13337338CD3D434C /* Localizer.swift */; };
+		812C27824813D998A03AFE1C /* GameKitViewControllerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2446D06CB8C65EC6DF3827A1 /* GameKitViewControllerPresenter.swift */; };
 		9BC7201048A9309E57E3E617 /* RulesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB0F2EE5BDBA3CD3BBE363B /* RulesView.swift */; };
+		9E2035865C9D5B57FE56C268 /* GameModeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E500068B0AB1E4A09BEC2AA4 /* GameModeSheet.swift */; };
 		AC1AB41AA2D3650CEB3BC1DD /* GameModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6102D66887AA0AAB87C31B63 /* GameModels.swift */; };
 		B7143F11498F71C4AF8F0650 /* MainGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C8410C1543A4025EE8798E /* MainGameView.swift */; };
+		C43E2806D5D9A9A21A76F9AB /* GameScene+Online.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC82BF9C70FBB78BF11C13 /* GameScene+Online.swift */; };
 		E6A8DA3BC5F4F7F041A9A0FC /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02B17097E6A696C4E4ABAB5 /* GameScene.swift */; };
 		EB8A9ADEBE9C08499AF0B44F /* Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7865542F6E35611A004EC0BD /* Brand.swift */; };
 		F94EE8BE4E6B32D28193A8AA /* iBottleCapSoccerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D57B0285B28FD6F15C53A9 /* iBottleCapSoccerApp.swift */; };
+		FD0E54601B70E79CCBE4B5B1 /* GameMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49536D46286273D7629ED233 /* GameMode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		04C8410C1543A4025EE8798E /* MainGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainGameView.swift; sourceTree = "<group>"; };
 		1BB0F2EE5BDBA3CD3BBE363B /* RulesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesView.swift; sourceTree = "<group>"; };
+		1F0F4E77540002B6F1C852A8 /* OnlineMatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMatchState.swift; sourceTree = "<group>"; };
+		2446D06CB8C65EC6DF3827A1 /* GameKitViewControllerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameKitViewControllerPresenter.swift; sourceTree = "<group>"; };
 		3F688E3A9030F9E0ACEB5575 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		415A169995D2DF6CAA7863D7 /* ScoreboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreboardView.swift; sourceTree = "<group>"; };
+		49536D46286273D7629ED233 /* GameMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMode.swift; sourceTree = "<group>"; };
 		50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuView.swift; sourceTree = "<group>"; };
 		6102D66887AA0AAB87C31B63 /* GameModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModels.swift; sourceTree = "<group>"; };
+		63461886E17D03E0AA133735 /* GameCenterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCenterManager.swift; sourceTree = "<group>"; };
 		776A18A9CC41775D3B11B81F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7865542F6E35611A004EC0BD /* Brand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Brand.swift; sourceTree = "<group>"; };
 		8013A6D0B459429AF91AB5ED /* iBottleCapSoccer.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iBottleCapSoccer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C26EE02C7C0D007449C768 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		934B65460EA6AA8360D3BED1 /* GameScene+Bot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameScene+Bot.swift"; sourceTree = "<group>"; };
 		970B819D13337338CD3D434C /* Localizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizer.swift; sourceTree = "<group>"; };
+		A0E12626E29C193AABDBBB05 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		A2D57B0285B28FD6F15C53A9 /* iBottleCapSoccerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iBottleCapSoccerApp.swift; sourceTree = "<group>"; };
+		A9EC82BF9C70FBB78BF11C13 /* GameScene+Online.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GameScene+Online.swift"; sourceTree = "<group>"; };
 		B7F6A37A9C855DE698C1A3E1 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		D05A63D2B83C75EE0CDBF73F /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		D202E659ECDB9B3AA3FB3C1C /* iBottleCapSoccer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iBottleCapSoccer.entitlements; sourceTree = "<group>"; };
 		E02B17097E6A696C4E4ABAB5 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		E500068B0AB1E4A09BEC2AA4 /* GameModeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModeSheet.swift; sourceTree = "<group>"; };
 		EACAF882BDBF001E05E5F515 /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		2E9EEFDF104B1C1C57405E92 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5EA77B4B367215A23307036A /* GameKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		05DB4F09FBA1AF42004F0A4F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A0E12626E29C193AABDBBB05 /* GameKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1587DF5CF45D8E779B9E3F2C /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				49536D46286273D7629ED233 /* GameMode.swift */,
 				6102D66887AA0AAB87C31B63 /* GameModels.swift */,
 			);
 			path = Models;
@@ -60,15 +97,26 @@
 			path = Game;
 			sourceTree = "<group>";
 		};
+		20C561AB593EE69243FD28CF /* Bot */ = {
+			isa = PBXGroup;
+			children = (
+				934B65460EA6AA8360D3BED1 /* GameScene+Bot.swift */,
+			);
+			path = Bot;
+			sourceTree = "<group>";
+		};
 		2BF6FBCCB785F580C18FCDCC /* iBottleCapSoccer */ = {
 			isa = PBXGroup;
 			children = (
 				3F688E3A9030F9E0ACEB5575 /* Assets.xcassets */,
+				D202E659ECDB9B3AA3FB3C1C /* iBottleCapSoccer.entitlements */,
 				A2D57B0285B28FD6F15C53A9 /* iBottleCapSoccerApp.swift */,
 				776A18A9CC41775D3B11B81F /* Info.plist */,
+				20C561AB593EE69243FD28CF /* Bot */,
 				15B715A51F62FDEEB3C0DEBA /* Game */,
 				8B38D39FB80A060876D4A968 /* Localization */,
 				1587DF5CF45D8E779B9E3F2C /* Models */,
+				C4ECFA915C214B5E84EC0EEF /* Multiplayer */,
 				8F82DBA95A6ABD9174A0001D /* Views */,
 			);
 			path = iBottleCapSoccer;
@@ -87,6 +135,7 @@
 		8F82DBA95A6ABD9174A0001D /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E500068B0AB1E4A09BEC2AA4 /* GameModeSheet.swift */,
 				04C8410C1543A4025EE8798E /* MainGameView.swift */,
 				50F242F153FDDF7F4CD842F1 /* MainMenuView.swift */,
 				91C26EE02C7C0D007449C768 /* RootView.swift */,
@@ -101,8 +150,20 @@
 			isa = PBXGroup;
 			children = (
 				2BF6FBCCB785F580C18FCDCC /* iBottleCapSoccer */,
+				05DB4F09FBA1AF42004F0A4F /* Frameworks */,
 				CF2984A62E7583C9D11683BB /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		C4ECFA915C214B5E84EC0EEF /* Multiplayer */ = {
+			isa = PBXGroup;
+			children = (
+				63461886E17D03E0AA133735 /* GameCenterManager.swift */,
+				2446D06CB8C65EC6DF3827A1 /* GameKitViewControllerPresenter.swift */,
+				A9EC82BF9C70FBB78BF11C13 /* GameScene+Online.swift */,
+				1F0F4E77540002B6F1C852A8 /* OnlineMatchState.swift */,
+			);
+			path = Multiplayer;
 			sourceTree = "<group>";
 		};
 		CF2984A62E7583C9D11683BB /* Products */ = {
@@ -122,6 +183,7 @@
 			buildPhases = (
 				2063BD975FB41E7747931D9B /* Sources */,
 				5A2DC46350B43F035F5280EA /* Resources */,
+				2E9EEFDF104B1C1C57405E92 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -181,12 +243,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB8A9ADEBE9C08499AF0B44F /* Brand.swift in Sources */,
+				2CF6F6104A80A855009AFD5B /* GameCenterManager.swift in Sources */,
+				812C27824813D998A03AFE1C /* GameKitViewControllerPresenter.swift in Sources */,
+				FD0E54601B70E79CCBE4B5B1 /* GameMode.swift in Sources */,
+				9E2035865C9D5B57FE56C268 /* GameModeSheet.swift in Sources */,
 				AC1AB41AA2D3650CEB3BC1DD /* GameModels.swift in Sources */,
+				1B6FF88D76CBD5DAD19BB8DB /* GameScene+Bot.swift in Sources */,
+				C43E2806D5D9A9A21A76F9AB /* GameScene+Online.swift in Sources */,
 				E6A8DA3BC5F4F7F041A9A0FC /* GameScene.swift in Sources */,
 				329B8BE56BA0C7236E26BE56 /* GameViewModel.swift in Sources */,
 				6E3B9EB88A36BC29810CAB52 /* Localizer.swift in Sources */,
 				B7143F11498F71C4AF8F0650 /* MainGameView.swift in Sources */,
 				21B64FF9EAE9CD28CAD11BD0 /* MainMenuView.swift in Sources */,
+				23B2F20DADF5CA9BBB130831 /* OnlineMatchState.swift in Sources */,
 				3E3B4082C41A80B9BF817657 /* RootView.swift in Sources */,
 				9BC7201048A9309E57E3E617 /* RulesView.swift in Sources */,
 				0F7A9422E8C3E6550364AB1F /* ScoreboardView.swift in Sources */,
@@ -204,6 +273,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iBottleCapSoccer/iBottleCapSoccer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iBottleCapSoccer/Info.plist;
@@ -279,6 +349,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iBottleCapSoccer/iBottleCapSoccer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iBottleCapSoccer/Info.plist;

@@ -15,6 +15,8 @@ targets:
       gatherCoverageData: false
     sources:
       - path: iBottleCapSoccer
+    dependencies:
+      - sdk: GameKit.framework
     info:
       path: iBottleCapSoccer/Info.plist
       properties:
@@ -32,3 +34,4 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: iBottleCapSoccer/iBottleCapSoccer.entitlements
