@@ -17,7 +17,6 @@ final class GameCenterManager: NSObject, ObservableObject {
     @Published var incomingUpdate: UUID?
     private(set) var pendingState: OnlineMatchState?
     private(set) var pendingLocalTeam: Team = .home
-    private(set) var pendingIsMyTurn = false
 
     private var currentMatch: GKTurnBasedMatch?
     private var listenerRegistered = false
@@ -95,9 +94,7 @@ extension GameCenterManager: GKLocalPlayerListener {
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
         currentMatch = match
         presentedViewController = nil
-        let localTeam = localTeam(in: match)
-        pendingLocalTeam = localTeam
-        pendingIsMyTurn = match.currentParticipant?.player?.gamePlayerID == GKLocalPlayer.local.gamePlayerID
+        pendingLocalTeam = localTeam(in: match)
 
         if let data = match.matchData, !data.isEmpty, let state = try? JSONDecoder().decode(OnlineMatchState.self, from: data) {
             pendingState = state
@@ -114,7 +111,6 @@ extension GameCenterManager: GKLocalPlayerListener {
         if let data = match.matchData, let state = try? JSONDecoder().decode(OnlineMatchState.self, from: data) {
             pendingState = state
             pendingLocalTeam = localTeam(in: match)
-            pendingIsMyTurn = false
             incomingUpdate = UUID()
         }
     }

@@ -63,11 +63,14 @@ final class GameViewModel: ObservableObject {
         isPaused = true
     }
 
-    /// Called when returning to an in-progress match — resumes the clock unless the match has already ended.
+    /// Called when returning to an in-progress match — resumes input/clock unless the match has
+    /// already ended. `isPaused` also gates touch input (not just the clock), so it must be
+    /// cleared for every mode, including online — the clock itself stays off for online since
+    /// `startTimer()` never runs for it.
     func resume() {
         isMenuPaused = false
         guard hasStarted, !isFullTime else { return }
-        if !mode.isOnline { isPaused = false }
+        isPaused = false
     }
 
     private func startTimer() {

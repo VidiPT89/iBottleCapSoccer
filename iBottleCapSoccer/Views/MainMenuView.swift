@@ -153,7 +153,7 @@ struct MainMenuView: View {
             Text("\(viewModel.homeScore) — \(viewModel.awayScore)")
                 .font(.caption.bold().monospacedDigit())
             Text("·").foregroundColor(.white.opacity(0.4))
-            Text(localizer.t(viewModel.half == .first ? .half1 : .half2))
+            Text(viewModel.mode.isOnline ? localizer.t(.onlineFirstTo5) : localizer.t(viewModel.half == .first ? .half1 : .half2))
                 .font(.caption2.bold())
         }
         .foregroundColor(.white.opacity(0.85))
