@@ -17,6 +17,9 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     /// flick gesture (not a huge cross-screen swipe) reaches max force.
     private let maxDrag: CGFloat = 150
     let maxImpulse: CGFloat = 170
+    /// The goalkeeper is allowed a stronger flick than a field cap, per the traditional rule
+    /// that the GR defends with more forceful clears from inside the box.
+    private let gkImpulseBonus: CGFloat = 1.35
     /// A drag that barely clears the `dist > 8` no-op threshold still lands a real shot,
     /// not a token nudge — this is the power floor for it.
     private let minPowerRatio: CGFloat = 0.3
@@ -31,6 +34,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private var dragNode: SKShapeNode?
     private var dragStart: CGPoint = .zero
     private var aimLine: SKShapeNode?
+    private var trajectoryLine: SKShapeNode?
 
     var wasSimulating = false
     var awaitingReset = false
@@ -213,7 +217,9 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let body = SKPhysicsBody(circleOfRadius: radius)
         body.mass = isGK ? 0.15 : 0.275
-        body.linearDamping = 0.95
+        // The goalkeeper is lighter and less damped than a field cap — more agile inside the
+        // box, matching the traditional rule that the GR gets stronger, freer flicks to defend.
+        body.linearDamping = isGK ? 0.88 : 0.95
         body.restitution = 0.65
         body.friction = 0.2
         body.allowsRotation = false
@@ -257,6 +263,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         dragNode = nil
         aimLine?.removeFromParent()
         aimLine = nil
+        trajectoryLine?.removeFromParent()
+        trajectoryLine = nil
 
         homeCaps.forEach { $0.removeFromParent() }
         awayCaps.forEach { $0.removeFromParent() }
@@ -403,6 +411,23 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         line.zPosition = 20
         addChild(line)
         aimLine = line
+
+        // Dashed preview of the actual flight path — the pull line above shows where you're
+        // dragging FROM, this shows where the cap will actually go, opposite the drag.
+        trajectoryLine?.removeFromParent()
+        let shotAngle = angle + .pi
+        let previewLength: CGFloat = 260 + ratio * 260
+        let previewTip = CGPoint(x: node.position.x + cos(shotAngle) * previewLength, y: node.position.y + sin(shotAngle) * previewLength)
+        let rawPath = CGMutablePath()
+        rawPath.move(to: node.position)
+        rawPath.addLine(to: previewTip)
+        let dashed = rawPath.copy(dashingWithPhase: 0, lengths: [14, 10])
+        let preview = SKShapeNode(path: dashed)
+        preview.strokeColor = SKColor.white.withAlphaComponent(0.55)
+        preview.lineWidth = 3
+        preview.zPosition = 19
+        addChild(preview)
+        trajectoryLine = preview
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -410,6 +435,8 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             dragNode = nil
             aimLine?.removeFromParent()
             aimLine = nil
+            trajectoryLine?.removeFromParent()
+            trajectoryLine = nil
         }
         guard let node = dragNode, let touch = touches.first else { return }
         let point = touch.location(in: self)
@@ -430,10 +457,13 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         dragNode = nil
         aimLine?.removeFromParent()
         aimLine = nil
+        trajectoryLine?.removeFromParent()
+        trajectoryLine = nil
     }
 
     /// Shared by human drag-release and the bot: launches `node` in `direction` (unit vector) with `power`.
     func applyShot(to node: SKShapeNode, direction: CGVector, power: CGFloat) {
+        var power = power
         if let name = node.name {
             let team: Team = name.hasPrefix("home-") ? .home : .away
             lastShotTeam = team
@@ -441,6 +471,7 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             lastShotFromOpponentHalf = team == .home
                 ? node.position.y > Self.fieldHeight / 2
                 : node.position.y < Self.fieldHeight / 2
+            if name.hasSuffix("gk") { power *= gkImpulseBonus }
         }
         node.physicsBody?.velocity = .zero
         node.physicsBody?.applyImpulse(CGVector(dx: direction.dx * power, dy: direction.dy * power))
