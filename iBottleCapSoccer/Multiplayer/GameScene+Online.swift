@@ -13,7 +13,8 @@ extension GameScene {
             ballY: Double(ball.position.y),
             homeScore: viewModel?.homeScore ?? 0,
             awayScore: viewModel?.awayScore ?? 0,
-            currentTeam: viewModel?.currentTeam.rawValue ?? Team.home.rawValue
+            currentTeam: viewModel?.currentTeam.rawValue ?? Team.home.rawValue,
+            extraTurnOwed: viewModel?.extraTurnOwed?.rawValue
         )
     }
 

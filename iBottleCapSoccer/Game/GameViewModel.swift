@@ -20,7 +20,11 @@ final class GameViewModel: ObservableObject {
     @Published var goalTarget: Int?
     /// Transient banner text for a foul or an earned free kick — mirrors `showGoalFlash`.
     @Published var foulFlash: String?
-    private var extraTurnOwed: Team?
+    /// Team owed a free-kick bonus turn from 3 consecutive fouls, if any. Not `private`: in
+    /// online mode this must be read into and applied from `OnlineMatchState` (see
+    /// `GameScene+Online.swift`), since a decision made on the fouling device is meaningless
+    /// unless it's carried over to the device that actually plays the owed team's next turn.
+    var extraTurnOwed: Team?
     /// Set by `CareerView` before starting a stage — fired once the match ends, `true` if the
     /// player (home) won. Decoupled from view lifecycle so it fires even if the career screen
     /// isn't the top of the navigation stack when the match finishes.
@@ -239,6 +243,7 @@ final class GameViewModel: ObservableObject {
         awayScore = state.awayScore
         currentTeam = Team(rawValue: state.currentTeam) ?? .home
         actionsLeft = Self.actionsPerTurn
+        extraTurnOwed = state.extraTurnOwed.flatMap { Team(rawValue: $0) }
         isPaused = false
         isMenuPaused = false
         isFullTime = state.isMatchOver
