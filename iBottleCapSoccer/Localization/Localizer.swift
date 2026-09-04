@@ -103,6 +103,7 @@ final class Localizer: ObservableObject {
             .careerStage: "Desafio",
             .goalTargetTitle: "Limite de golos",
             .goalTargetNone: "Sem limite",
+            .goalTargetScope: "Local/Bot apenas",
         ],
         .en: [
             .appTitle: "Bottle Cap Soccer",
@@ -179,6 +180,7 @@ final class Localizer: ObservableObject {
             .careerStage: "Challenge",
             .goalTargetTitle: "Goal limit",
             .goalTargetNone: "No limit",
+            .goalTargetScope: "Local/Bot only",
         ],
     ]
 }
@@ -208,5 +210,5 @@ enum LocKey: String {
     case menuTraining, menuCareer
     case trainingTitle, trainingScore
     case careerTitle, careerLocked, careerWon, careerPlay, careerStage
-    case goalTargetTitle, goalTargetNone
+    case goalTargetTitle, goalTargetNone, goalTargetScope
 }

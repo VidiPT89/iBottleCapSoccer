@@ -69,7 +69,9 @@ struct GameModeSheet: View {
 
     private var goalTargetPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(localizer.t(.goalTargetTitle))
+            // Only applies to Local/Bot below — Online always plays its own fixed first-to-5,
+            // so make that scope explicit instead of letting a chosen value silently do nothing.
+            Text("\(localizer.t(.goalTargetTitle)) (\(localizer.t(.goalTargetScope)))")
                 .font(.caption.bold())
                 .foregroundColor(.secondary)
             Picker(localizer.t(.goalTargetTitle), selection: $goalTarget) {
