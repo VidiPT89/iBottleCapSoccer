@@ -154,8 +154,8 @@ struct MainGameView: View {
             Text("\(viewModel.homeScore) — \(viewModel.awayScore)")
                 .font(.system(size: 30, weight: .black))
                 .foregroundColor(Brand.orange)
-            if viewModel.mode.isOnline {
-                Button(localizer.t(.menuBackToMenu)) { dismiss() }
+            if viewModel.mode.isOnline || viewModel.isCareerMatch {
+                Button(localizer.t(viewModel.isCareerMatch ? .careerTitle : .menuBackToMenu)) { dismiss() }
                     .buttonStyle(PrimaryChipButtonStyle())
             } else {
                 Button(localizer.t(.restart)) { viewModel.startNewMatch(mode: viewModel.mode, goalTarget: viewModel.goalTarget) }

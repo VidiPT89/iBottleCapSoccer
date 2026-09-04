@@ -33,12 +33,4 @@ final class ThemeManager: ObservableObject {
         let saved = UserDefaults.standard.string(forKey: "fdc_theme") ?? AppTheme.system.rawValue
         theme = AppTheme(rawValue: saved) ?? .system
     }
-
-    func cycle() {
-        switch theme {
-        case .system: theme = .light
-        case .light: theme = .dark
-        case .dark: theme = .system
-        }
-    }
 }

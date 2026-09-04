@@ -60,13 +60,16 @@ struct CareerView: View {
     }
 
     private func startStage(index: Int, difficulty: BotDifficulty) {
+        // `startNewMatch` always clears `onMatchFinished` first, so this must be assigned
+        // AFTER calling it — otherwise it would wipe out the closure we just set.
+        viewModel.startNewMatch(mode: .bot(difficulty))
+        viewModel.isCareerMatch = true
         viewModel.onMatchFinished = { won in
             lastResultStage = index
             lastResultWon = won
             if won { CareerManager.shared.recordWin(atStage: index) }
             viewModel.onMatchFinished = nil
         }
-        viewModel.startNewMatch(mode: .bot(difficulty))
         onPlay()
     }
 

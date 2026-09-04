@@ -25,6 +25,10 @@ final class GameViewModel: ObservableObject {
     /// player (home) won. Decoupled from view lifecycle so it fires even if the career screen
     /// isn't the top of the navigation stack when the match finishes.
     var onMatchFinished: ((Bool) -> Void)?
+    /// True while the current match is a Career stage — lets `MainGameView` offer "Back to
+    /// Career" instead of "Play Again" on the full-time card (replaying in place would silently
+    /// desync from the ladder, since `onMatchFinished` only fires once per `startStage` call).
+    @Published var isCareerMatch = false
 
     /// Which team the bot controls, when `mode` is `.bot`.
     let botTeam: Team = .away
@@ -57,6 +61,11 @@ final class GameViewModel: ObservableObject {
     func startNewMatch(mode: GameMode = .local, goalTarget: Int? = nil) {
         self.mode = mode
         self.goalTarget = goalTarget
+        // Cleared by default so an abandoned Career attempt (left before finishing) can never
+        // leak its completion callback into an unrelated match started afterward — CareerView
+        // re-assigns it right after calling this, before any goal can possibly be scored.
+        onMatchFinished = nil
+        isCareerMatch = false
         homeScore = 0
         awayScore = 0
         half = .first
@@ -225,6 +234,7 @@ final class GameViewModel: ObservableObject {
         let wasFullTime = isFullTime
         mode = .online
         localOnlineTeam = localTeam
+        if isFirstTime { onMatchFinished = nil }
         homeScore = state.homeScore
         awayScore = state.awayScore
         currentTeam = Team(rawValue: state.currentTeam) ?? .home
@@ -249,6 +259,8 @@ final class GameViewModel: ObservableObject {
     func seedNewOnlineMatch(localTeam: Team) {
         mode = .online
         localOnlineTeam = localTeam
+        onMatchFinished = nil
+        isCareerMatch = false
         homeScore = 0
         awayScore = 0
         currentTeam = .home

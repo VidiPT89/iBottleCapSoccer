@@ -4,8 +4,6 @@ import Combine
 enum AppLanguage: String {
     case pt
     case en
-
-    var displayCode: String { self == .pt ? "PT" : "EN" }
 }
 
 final class Localizer: ObservableObject {
@@ -25,10 +23,6 @@ final class Localizer: ObservableObject {
         }
     }
 
-    func toggle() {
-        language = language == .pt ? .en : .pt
-    }
-
     func t(_ key: LocKey) -> String {
         strings[language]?[key] ?? key.rawValue
     }
@@ -42,7 +36,6 @@ final class Localizer: ObservableObject {
             .teamAway: "Equipa Fora",
             .half1: "1ª Parte",
             .half2: "2ª Parte",
-            .halftime: "Intervalo",
             .fulltime: "Fim de Jogo",
             .turnHome: "Vez da Equipa Casa",
             .turnAway: "Vez da Equipa Fora",
@@ -50,20 +43,19 @@ final class Localizer: ObservableObject {
             .hintText: "Arrasta uma carica da tua equipa e solta para chutar. Chega ao meio-campo adversário para poderes rematar à baliza.",
             .restart: "Jogar Novamente",
             .splashSkip: "Saltar",
-            .splashCredit: "Developed by David Arsénio Martins",
             .rulesTitle: "Regras do Futebol de Caricas",
             .rulesObjectiveTitle: "Objetivo",
             .rulesObjectiveBody: "Marcar mais golos que a equipa adversária, chutando as caricas com precisão para empurrar a bola até à baliza contrária.",
             .rulesDurationTitle: "Duração",
-            .rulesDurationBody: "2 partes de 15 minutos, sem interrupções.",
+            .rulesDurationBody: "2 partes de 15 minutos, sem interrupções — ou, se escolheres um limite de golos ao iniciar (ex: primeiro a 5), o jogo também pode terminar mais cedo.",
             .rulesHowTitle: "Como jogar",
             .rulesHowBody: "Arrasta uma carica da tua equipa e solta para a chutar na direção e força desejadas. Depois de cada jogada, passa a vez à equipa adversária. Não é permitido tocar numa carica sem a deslocar de forma percetível.",
             .rulesShootTitle: "Remate à baliza",
             .rulesShootBody: "Só podes rematar quando a tua carica está no meio-campo adversário — é obrigatório anunciar o remate.",
             .rulesSpecialTitle: "Regras especiais",
-            .rulesSpecialBody: "Não existe fora de jogo nem fora de campo. Existe lei da mão: se a bola cair dentro de uma carica tua vinda do adversário, é falta.",
+            .rulesSpecialBody: "Não existe fora de jogo nem fora de campo (o campo é murado). É falta cada vez que a tua carica choca contra uma carica adversária antes de tocar na bola — 3 faltas seguidas da mesma equipa dão um livre direto (um turno extra) ao adversário. O guarda-redes flicta com mais força e mais agilidade que um jogador de campo.",
             .rulesPlaysTitle: "Jogadas especiais",
-            .rulesPlaysBody: "Penáltis, livres diretos, cantos, laterais e pontapé de baliza — tal como no futebol tradicional.",
+            .rulesPlaysBody: "O livre direto por faltas acontece dentro do próprio jogo (ver Regras especiais). Para treinar remates isolados, usa o modo \"Treino de Pénaltis\" no menu principal.",
             .close: "Fechar",
             .menuSubtitle: "O clássico jogo de caricas, direto do recreio",
             .menuPlay: "Jogar",
@@ -87,7 +79,6 @@ final class Localizer: ObservableObject {
             .cancel: "Cancelar",
             .back: "Voltar",
             .onlineFirstTo5: "Primeiro a 5 golos",
-            .onlineWaitingSignIn: "A entrar no Game Center…",
             .onlineOpponentTurn: "Vez do adversário",
             .onlineYourTurn: "A tua vez",
             .botThinking: "O bot está a jogar…",
@@ -121,7 +112,6 @@ final class Localizer: ObservableObject {
             .teamAway: "Away Team",
             .half1: "1st Half",
             .half2: "2nd Half",
-            .halftime: "Half-Time",
             .fulltime: "Full Time",
             .turnHome: "Home Team's Turn",
             .turnAway: "Away Team's Turn",
@@ -129,20 +119,19 @@ final class Localizer: ObservableObject {
             .hintText: "Drag a cap from your team and release to shoot. Reach the opponent's half to be able to shoot at goal.",
             .restart: "Play Again",
             .splashSkip: "Skip",
-            .splashCredit: "Developed by David Arsénio Martins",
             .rulesTitle: "Bottle Cap Soccer Rules",
             .rulesObjectiveTitle: "Objective",
             .rulesObjectiveBody: "Score more goals than the opposing team by flicking your caps to push the ball into the opponent's goal.",
             .rulesDurationTitle: "Duration",
-            .rulesDurationBody: "2 halves of 15 minutes each, played without stoppages.",
+            .rulesDurationBody: "2 halves of 15 minutes each, played without stoppages — or, if you pick a goal limit when starting (e.g. first to 5), the match can also end early.",
             .rulesHowTitle: "How to play",
             .rulesHowBody: "Drag a cap from your team and release to flick it in the desired direction and strength. After each move, the turn passes to the other team. A cap can't be touched without moving it noticeably.",
             .rulesShootTitle: "Shooting on goal",
             .rulesShootBody: "You can only shoot when your cap is in the opponent's half — the shot must be announced beforehand.",
             .rulesSpecialTitle: "Special rules",
-            .rulesSpecialBody: "No offside rule and no out of bounds. Handball rule applies: if the ball lands inside one of your caps off an opponent's play, it's a foul.",
+            .rulesSpecialBody: "No offside and no out of bounds (the pitch is walled). Charging into an opponent's cap before touching the ball is a foul — three in a row by the same team hand the opponent a free kick (an extra turn). The goalkeeper flicks with more power and agility than a field cap.",
             .rulesPlaysTitle: "Special plays",
-            .rulesPlaysBody: "Penalties, direct free-kicks, corners, throw-ins and goal-kicks — just like traditional football.",
+            .rulesPlaysBody: "The direct free kick from fouls happens within the match itself (see Special rules). For isolated flick practice, use \"Penalty Training\" from the main menu.",
             .close: "Close",
             .menuSubtitle: "The classic bottle cap game, straight from the schoolyard",
             .menuPlay: "Play",
@@ -166,7 +155,6 @@ final class Localizer: ObservableObject {
             .cancel: "Cancel",
             .back: "Back",
             .onlineFirstTo5: "First to 5 goals",
-            .onlineWaitingSignIn: "Signing in to Game Center…",
             .onlineOpponentTurn: "Opponent's turn",
             .onlineYourTurn: "Your turn",
             .botThinking: "Bot is playing…",
@@ -197,9 +185,9 @@ final class Localizer: ObservableObject {
 
 enum LocKey: String {
     case appTitle, navRules, navNewGame, teamHome, teamAway
-    case half1, half2, halftime, fulltime
+    case half1, half2, fulltime
     case turnHome, turnAway, goalText, hintText, restart
-    case splashSkip, splashCredit
+    case splashSkip
     case rulesTitle
     case rulesObjectiveTitle, rulesObjectiveBody
     case rulesDurationTitle, rulesDurationBody
@@ -213,7 +201,7 @@ enum LocKey: String {
     case modePickerTitle, mode1v1, mode1v1Subtitle, modeBot, modeBotSubtitle, modeOnline, modeOnlineSubtitle
     case botDifficultyTitle, botEasy, botMedium, botHard
     case cancel, back
-    case onlineFirstTo5, onlineWaitingSignIn, onlineOpponentTurn, onlineYourTurn, botThinking
+    case onlineFirstTo5, onlineOpponentTurn, onlineYourTurn, botThinking
     case foulText, freeKickText, ambientToggle
     case statsTitle, statsGoals, statsPlayed, statsWon
     case customizeTitle, customizeHome, customizeAway
