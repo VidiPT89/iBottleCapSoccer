@@ -6,9 +6,14 @@
 
 ## ✨ Features
 
-- ✅ Realistic flick-based physics (friction, collisions, bounces) powered by SpriteKit
+- ✅ Realistic flick-based physics (friction, collisions, bounces, a stronger/more agile goalkeeper) powered by SpriteKit, with pinch-to-zoom on the pitch
 - ✅ Three game modes: local 1 vs 1, 1 vs Bot (3 difficulty levels), and online multiplayer via Game Center
-- ✅ Full match flow: kickoff, goals, half-time, full-time (online matches play to first-to-5-goals instead of a clock, since turn-based play doesn't fit a real-time timer)
+- ✅ Full match flow: kickoff, goals, half-time, full-time — Local/Bot play 2×15min with an optional early-finish goal limit (e.g. first to 5), online plays to a fixed first-to-5 with no clock
+- ✅ Fouls: charging an opponent's cap before touching the ball is a foul; three in a row hand the opponent a free kick (an extra turn)
+- ✅ Penalty Training mode — free flick practice against a patrolling keeper, with a conversion counter
+- ✅ Career mode — a 7-stage ladder of Bot opponents with rising difficulty, unlocked sequentially
+- ✅ Team kit customization (6 colors per side) and lifetime stats (goals scored, matches played/won)
+- ✅ Procedural sound effects (kick, goal, whistle) and a soft ambient loop — no bundled audio assets
 - ✅ Bilingual interface — Portuguese (PT-PT) and English, switchable in-app
 - ✅ Light, dark and system appearance modes
 - ✅ Animated splash intro on launch
@@ -47,15 +52,16 @@ Then build and run (`Cmd+R`) on a simulator or device.
 ## 📖 Usage
 
 1. Watch the intro splash or tap **Skip** to jump straight into the menu.
-2. Tap **Play** and choose a mode: **1 vs 1** (pass the device between two players), **1 vs Bot** (pick Easy/Medium/Hard), or **Online** (Game Center, turn-based).
-3. Drag a cap from your own team and release to flick it toward the ball.
-4. Reach the opponent's half to be able to shoot on goal.
-5. Local and bot matches play 2×15 minute halves; online matches play to first-to-5-goals with no clock.
-6. Use the gear menu to switch language (PT/EN), cycle the appearance (system/light/dark), or check the rules.
+2. Tap **Play** and choose a mode: **1 vs 1** (pass the device between two players), **1 vs Bot** (pick Easy/Medium/Hard), or **Online** (Game Center, turn-based) — optionally set a goal limit for Local/Bot before starting.
+3. Drag a cap from your own team and release to flick it toward the ball; pinch to zoom in on the pitch.
+4. Reach the opponent's half to be able to shoot on goal. Charging an opponent's cap before touching the ball is a foul.
+5. Local and bot matches play 2×15 minute halves (or end early on the chosen goal limit); online matches play to first-to-5-goals with no clock.
+6. From the menu, also try **Penalty Training** (free practice) or **Career** (a ladder of Bot opponents).
+7. Use the gear menu to switch language (PT/EN), pick a light/dark/system appearance, customize your team's colors, check lifetime stats, toggle ambient sound, or check the rules.
 
 ## 🧪 Testing
 
-Manual testing was performed in the iOS Simulator, covering drag-to-shoot input, goal detection, turn switching, timer flow, appearance switching, language switching, and the bot's decision-making across all three difficulties. Game Center connectivity between two real devices has not been end-to-end tested — see the note above.
+Manual testing was performed in the iOS Simulator, covering drag-to-shoot input, goal detection, foul/free-kick detection, turn switching, timer and goal-limit flow, penalty training, career progression, appearance switching, language switching, and the bot's decision-making across all three difficulties. Game Center connectivity between two real devices has not been end-to-end tested — see the note above.
 
 ## 📄 License
 
