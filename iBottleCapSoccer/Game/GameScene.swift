@@ -34,7 +34,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     private var dragNode: SKShapeNode?
     private var dragStart: CGPoint = .zero
     private var aimLine: SKShapeNode?
-    private var trajectoryLine: SKShapeNode?
 
     var wasSimulating = false
     var awaitingReset = false
@@ -271,8 +270,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         dragNode = nil
         aimLine?.removeFromParent()
         aimLine = nil
-        trajectoryLine?.removeFromParent()
-        trajectoryLine = nil
 
         homeCaps.forEach { $0.removeFromParent() }
         awayCaps.forEach { $0.removeFromParent() }
@@ -422,15 +419,17 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let node = dragNode, let touch = touches.first else { return }
         let point = touch.location(in: self)
-        let dx = dragStart.x - point.x
-        let dy = dragStart.y - point.y
+        // Point-and-release: drag in the direction you want the cap to go (not a slingshot
+        // pull-back) — the shot direction is the same as the drag vector, not its opposite.
+        let dx = point.x - dragStart.x
+        let dy = point.y - dragStart.y
         let rawDist = hypot(dx, dy)
         let ratio = min(rawDist / maxDrag, 1)
         // Clamp the drawn line to the drag distance that actually caps out the power, so what
         // the player sees always matches what they'll get — dragging further doesn't lie.
         let clampedDist = min(rawDist, maxDrag)
         let angle = atan2(dy, dx)
-        let tip = CGPoint(x: node.position.x - cos(angle) * clampedDist, y: node.position.y - sin(angle) * clampedDist)
+        let tip = CGPoint(x: node.position.x + cos(angle) * clampedDist, y: node.position.y + sin(angle) * clampedDist)
 
         aimLine?.removeFromParent()
         let line = SKShapeNode(path: {
@@ -450,23 +449,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         line.zPosition = 20
         addChild(line)
         aimLine = line
-
-        // Dashed preview of the actual flight path — the pull line above shows where you're
-        // dragging FROM, this shows where the cap will actually go, opposite the drag.
-        trajectoryLine?.removeFromParent()
-        let shotAngle = angle + .pi
-        let previewLength: CGFloat = 260 + ratio * 260
-        let previewTip = CGPoint(x: node.position.x + cos(shotAngle) * previewLength, y: node.position.y + sin(shotAngle) * previewLength)
-        let rawPath = CGMutablePath()
-        rawPath.move(to: node.position)
-        rawPath.addLine(to: previewTip)
-        let dashed = rawPath.copy(dashingWithPhase: 0, lengths: [14, 10])
-        let preview = SKShapeNode(path: dashed)
-        preview.strokeColor = SKColor.white.withAlphaComponent(0.55)
-        preview.lineWidth = 3
-        preview.zPosition = 19
-        addChild(preview)
-        trajectoryLine = preview
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -474,13 +456,11 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
             dragNode = nil
             aimLine?.removeFromParent()
             aimLine = nil
-            trajectoryLine?.removeFromParent()
-            trajectoryLine = nil
         }
         guard let node = dragNode, let touch = touches.first else { return }
         let point = touch.location(in: self)
-        let dx = dragStart.x - point.x
-        let dy = dragStart.y - point.y
+        let dx = point.x - dragStart.x
+        let dy = point.y - dragStart.y
         let rawDist = hypot(dx, dy)
         guard rawDist > 8 else { return }
         let ratio = min(rawDist / maxDrag, 1)
@@ -496,8 +476,6 @@ final class GameScene: SKScene, SKPhysicsContactDelegate {
         dragNode = nil
         aimLine?.removeFromParent()
         aimLine = nil
-        trajectoryLine?.removeFromParent()
-        trajectoryLine = nil
     }
 
     /// Shared by human drag-release and the bot: launches `node` in `direction` (unit vector) with `power`.

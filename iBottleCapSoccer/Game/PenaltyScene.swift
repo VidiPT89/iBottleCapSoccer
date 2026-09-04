@@ -186,10 +186,11 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard dragNode != nil, let touch = touches.first else { return }
         let point = touch.location(in: self)
-        let dx = dragStart.x - point.x, dy = dragStart.y - point.y
+        // Point-and-release: drag in the direction you want the cap to go.
+        let dx = point.x - dragStart.x, dy = point.y - dragStart.y
         let clampedDist = min(hypot(dx, dy), maxDrag)
         let angle = atan2(dy, dx)
-        let tip = CGPoint(x: cap.position.x - cos(angle) * clampedDist, y: cap.position.y - sin(angle) * clampedDist)
+        let tip = CGPoint(x: cap.position.x + cos(angle) * clampedDist, y: cap.position.y + sin(angle) * clampedDist)
         aimLine?.removeFromParent()
         let line = SKShapeNode(path: {
             let p = CGMutablePath(); p.move(to: cap.position); p.addLine(to: tip); return p
@@ -205,7 +206,7 @@ final class PenaltyScene: SKScene, SKPhysicsContactDelegate {
         defer { dragNode = nil; aimLine?.removeFromParent(); aimLine = nil }
         guard dragNode != nil, let touch = touches.first else { return }
         let point = touch.location(in: self)
-        let dx = dragStart.x - point.x, dy = dragStart.y - point.y
+        let dx = point.x - dragStart.x, dy = point.y - dragStart.y
         let rawDist = hypot(dx, dy)
         guard rawDist > 8 else { return }
         let ratio = min(rawDist / maxDrag, 1)
